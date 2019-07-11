@@ -364,8 +364,13 @@ class Widget extends React.Component<{}, State>
         this.graph.edges.unshift({
           from: ref.id.replace(/.*\/(.*)/, '$1'),
           to: parent.id.replace(/.*\/(.*)/, '$1'),
-          arrows: 'to',
-          length: 50,
+          arrows: {
+            to: {
+              enabled: true,
+              scaleFactor: 0.5
+            }
+          },
+          length: 80,
           font: {..._nodeProps.font, size: 9},
           color: { 
             color: parent.ref_type === 'required' ? this.cssProps.graphNetworkRequiredEdgeColor : this.cssProps.graphNetworkRecommendedEdgeColor,
@@ -612,7 +617,7 @@ class Widget extends React.Component<{}, State>
 
 
   render()
-  { 
+  {
     let refIDWrapperStyle: CSSProperties =
         {
           position: 'relative',
