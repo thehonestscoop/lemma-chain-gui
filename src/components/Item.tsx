@@ -4,9 +4,13 @@ import React from 'react';
 
 const Item = React.forwardRef((props: any, refItemWrapper: any) =>
 {
-  let appendURL = <a href={props.externLink} target='_blank' className='extern-link'>
-              <img className='extern-link-icon' src="link.png" alt="link" />
-            </a>;
+  const appendURL = <a
+                      href={props.externLink}
+                      target='_blank'
+                      className='extern-link'
+                      rel='noopener noreferrer'>
+                      <img className='extern-link-icon' src="link.png" alt="link" />
+                    </a>;
   return (
     <div
       className='item-wrapper'

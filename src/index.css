@@ -47,6 +47,13 @@ body {
   transition: 0.3s;
 }
 
+.widget * {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
 .widget .dropdown {
   height: auto;
   -webkit-transition: 0.3s;
@@ -74,14 +81,31 @@ body {
   z-index: 3;
   -webkit-transition: 0.3s;
   transition: 0.3s;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
 }
 
 .widget .dropdown-toggle-bar:hover {
   background: #555;
+}
+
+.widget .dropdown-toggle-bar .refIDWrapper {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 80%;
+}
+
+.widget .dropdown-toggle-bar .refIDWrapper .ref-identifier {
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  max-width: 100%;
+  word-wrap: break-word;
+  text-align: center;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
 }
 
 .widget .dropdown-toggle-bar .caret-icon {
@@ -90,6 +114,9 @@ body {
   transition: 0.3s;
   -webkit-transform: rotate(90deg);
           transform: rotate(90deg);
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
 }
 
 .widget .dropdown-toggle-bar .flip-caret-icon {
@@ -386,7 +413,7 @@ body {
 }
 
 .tool-tip {
-  top: -20px;
+  top: 70%;
   z-index: 5;
   cursor: pointer;
 }

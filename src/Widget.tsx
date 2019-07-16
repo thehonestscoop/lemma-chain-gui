@@ -50,7 +50,7 @@ class Widget extends React.Component<{}, State>
    * activeTabName: this and activeTabLinkName are mainly used for navigating history (going back in time)
    * historyExists: boolean to display 'back button' if true and hide if otherwise
    * isViewedWithMobile: boolean to check what device app is running on (hides 'star button' if true, displays if false)
-   * height: holds constant actual value of Widget height
+   * tabLinksWrapperheight: a constant which will be needed in computing dropdown height and also loader wrapper height in Dropdown.tsx
    * dropdown: child element of Widget
    * activeTabLink: tab link/button
    * activeTab: active tab/dropdown for either of the three togglable tabs
@@ -82,7 +82,7 @@ class Widget extends React.Component<{}, State>
     tooltipIsActive: false
   };
 
-  height = 0;
+  tabLinksWrapperheight = 48;
 
   graph: any = {
     nodes: [],
@@ -245,7 +245,7 @@ class Widget extends React.Component<{}, State>
   /**
    * @param resizeDropdownHeightTo: Returns height of current activeTab, or 0 if 'dropdownIsCollapsed'; used to compute and set height of dropdown menu
    */
-  resizeDropdownHeightTo(activeTab: any, constHeight = this.height): number
+  resizeDropdownHeightTo(activeTab: any, constHeight = this.tabLinksWrapperheight): number
   {
     //i.e. if the argument, activeTab, is an element and not a number (0)... PS: Add 2px for border-bottom extension
     return activeTab !== 0 ? (activeTab.offsetHeight + constHeight) + 2 : 0;
@@ -436,16 +436,25 @@ class Widget extends React.Component<{}, State>
     {
       //'params.node' implies event is triggered by node-hover event while 'params.nodes[0]' implies event is triggered by node-click event
       let label: string = !params.node ? params.nodes[0] : params.node,
-          currentNode = this.graph.nodes.find((node: any) => label === node.id);
+          currentNode = this.graph.nodes.find((node: any) => label === node.id),
+          authors = currentNode.data.authors,
+          renderLink = `url: <a 
+                          href='${currentNode.url}' 
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          style='color: white;'>${currentNode.url}</a>`;
+
+      authors = authors.length > 1 ? `${authors[0]}...` : authors;
 
       graphTooltip.innerHTML = 
         `${currentNode.data.title}<br />
         <i style='font-size: 11px;'>
-          ${!params.node ? currentNode.data.authors.join(', ') : ''}
+          ${!params.node ? authors : ''}
         </i>
         <span style='font-size: 9px;'>
           ${!params.node ? currentNode._id : ''}
-        </span>`;
+        </span>
+        <i style='font-size: 9px;'>${currentNode.url ? renderLink : ''}</i>`;
       graphTooltip.style.left = `${Math.ceil(params.pointer.DOM.x) - 10}px`;
       graphTooltip.style.top = `${Math.ceil(params.pointer.DOM.y) - (!params.node ? 15 : 0)}px`;
     };
@@ -516,10 +525,6 @@ class Widget extends React.Component<{}, State>
     if (/(Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone)/i.test(window.navigator.userAgent))
       this.isViewedWithMobile = true;
 
-    //now set value of constant Widget height which will also be used in computing loader wrapper height in Dropdown.tsx
-    
-    this.height = this.widget.current.offsetHeight;
-
     let activeTab = this.child_refs.activeTab.current;
     
     this.setState({refIsLoading: true});
@@ -548,13 +553,14 @@ class Widget extends React.Component<{}, State>
         })
     }
     //NOTE: This block of code must be re-edited for production. It was modified just for testing purposes
-    //TO-DO: Remodify code: Make url prop not optional in Payload interface at very top...
+    //TO-DO: Remodify code: Make url prop not optional in Payload interface at very top [line 17]...
     catch (e) 
     {
       //TO-DO: delete this line in production
       alert('Hi, there. \n\nLemma Chain GUI could not establish connection with server, hence, got hard-coded refs instead for testing purposes.\n\n- Godspower');
 
       //just for proper English grammar sentence casing
+      //PS: This next three lines may eventually not be needed since code was remodified to not throw dev-oriented errors to user
       let errMsg = String(e).replace(/(\w+)?error:/i, '').trim(),
           appendDot = errMsg.substr(-1) !== '.' ? `${errMsg}.` : errMsg,
           grammifiedErrMsg = appendDot.charAt(0).toUpperCase() + appendDot.substr(1,);
@@ -567,7 +573,7 @@ class Widget extends React.Component<{}, State>
         errMsg: `${grammifiedErrMsg}`,
         refIsLoading: false
       });
-      //HACK: The following setTimeout function is for a case where user toggles dropdown while Lemma Chain is still fetching data and has not yet resolved
+      //HACK: The following setTimeout function is for a case where user toggles dropdown while Lemma Chain is still loading or fetching data and has not yet resolved
       //PS: Delay till after above state props is set in order to correctly set dropdown height
       setTimeout(() => 
       {
@@ -580,8 +586,7 @@ class Widget extends React.Component<{}, State>
     }
     finally 
     {
-      
-      //hide clipboard tool-tip if anywhere else in document/page is clicked
+      //hide clipboard tool-tip if anywhere else on page/document is clicked
       document.body.onclick = (e: any) => 
       {
         if (!/tool-tip|ref-identifier/.test(e.target.className))
@@ -590,17 +595,17 @@ class Widget extends React.Component<{}, State>
 
       const googleFontCDN = document.getElementById('font-cdn') as HTMLElement;
 
-      //HACK: This is for to wait or delay till fonts are loaded before setting height of activeTab in order not to set a height below height of tab with loaded fonts since offset height of container is set to auto and relative to size of font
+      //HACK: This is for to wait or delay till fonts are loaded before setting height of activeTab in order not to set a height below height of tab with loaded fonts since offset height of container will be relative to size of font
       const awaitFontLoad = async () => 
       {
         try { await fetch(`${googleFontCDN.getAttribute('href')}`); }
         finally 
         {
-          //set maximum height of dropdown to height of three items [before adding scroll bar]
+          //set maximum height of dropdown to height of N items [before adding scroll bar]
           const heightRef = this.child_refs.refItemWrapper.current.offsetHeight,
                 maxHeight = `${heightRef * (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) + 2}px`;
 
-          //using activeTab here instead of requiredTab since on component mount, requiredTab is activeTab
+          //using activeTab here instead of requiredTab since on component mount, requiredTab is activeTab, and also to prevent ref forwarding error
           this.child_refs.activeTab.current.style.maxHeight = maxHeight;
           this.child_refs.recommendedTab.current.style.maxHeight = maxHeight;
 
@@ -620,13 +625,6 @@ class Widget extends React.Component<{}, State>
 
   render()
   {
-    const refIDWrapperStyle: CSSProperties =
-        {
-          position: 'relative',
-          display: 'flex',
-          justifyContent: 'center'
-        };
-
     return (
       <div 
         className={`widget ${this.isViewedWithMobile ? 'isViewedWithMobile' : ''}`}
@@ -634,19 +632,16 @@ class Widget extends React.Component<{}, State>
         ref={this.widget}>
         <button
           className={`tool-tip ${this.state.tooltipIsActive ? '' : 'fade-out'}`}
-          onClick={this.copyRefID}>Copy
-        </button>
+          onClick={this.copyRefID}
+        >Copy</button>
         <section className='dropdown-toggle-bar' onClick={this.handleDropdownToggle}>
-          <span>LC</span>
-          <span style={refIDWrapperStyle}>
+          <span style={{alignSelf: 'center'}}>LC</span>
+          <span className='refIDWrapper'>
             <span
               className='ref-identifier'
               title={`Title: ${this.state.payload.data.title}\nAuthor(s): ${this.state.payload.data.authors.join(', ')}\nRef. ID: ${this.state.refID}`}
-              style={{
-                opacity: this.state.refIsLoading ? 0 : 1,
-                transition: '0.3s'
-              }}>
-              {this.state.refID.length > 20 ? `${this.state.refID.substr(0, 20)}...` : this.state.refID}
+              style={{opacity: this.state.refIsLoading ? 0 : 1}}>
+              {this.state.refID}
               {/*HACK: This is for copying to clipboard as _NODE_.select() doesn't work for non-input elements, and TypeScript throws some error when trying to 'window.getSelection()'*/}
               <input
                 type='text'
@@ -676,7 +671,7 @@ class Widget extends React.Component<{}, State>
         </section>
         <Dropdown
           state={{...this.state}}
-          height={this.height}
+          tabLinksWrapperheight={this.tabLinksWrapperheight}
           isViewedWithMobile={this.isViewedWithMobile}
           handleTabToggle={this.handleTabToggle}
           handleReferenceClick={this.handleReferenceClick}

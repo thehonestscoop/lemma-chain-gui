@@ -27,8 +27,6 @@ const Dropdown: any = React.forwardRef<any>((props: any, Ref: any) =>
           <div id='graph' ref={Ref.graph}></div>
           <div id='graph-key'>
             Key:<br />
-            <span className='key key-current'></span> current ref.<br />
-            <span className='key key-other'></span> other ref(s).<br />
             <span className='key key-line-required'></span> required<br />
             <span className='key key-line-recommended'></span> recommended
           </div>
@@ -57,7 +55,7 @@ const Dropdown: any = React.forwardRef<any>((props: any, Ref: any) =>
             color: getCSSProps().themeBg,
             rider: props.state.payload.id ? 'Populating References...' : 'Loading References...',
             type: 'major',
-            wrapperHeight: props.state.dropdownCurHeight - props.height
+            wrapperHeight: props.state.dropdownCurHeight - props.tabLinksWrapperheight
           }}
         />
         <div className='tabs-wrapper' style={{opacity: props.state.refIsLoading ? 0 : 1}}>
