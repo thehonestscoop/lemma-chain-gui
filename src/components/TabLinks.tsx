@@ -1,19 +1,19 @@
 import React from 'react';
-import { Props } from './Dropdown';
+// import { Props } from './Dropdown';
 import { getCSSProps } from '../ThemeCSS';
 import widgetconfig from '../widgetconfig.json';
 
 
 
 
-export default function TabLinks(props: Props)
+const TabLinks: any = React.forwardRef((props: any, ref: any) =>
 {
   return (
     <div className='tab-links-wrapper' style={{height: props.state.dropdownIsCollapsed ? 0 : 48, 
     maxWidth: widgetconfig.widgetMaxWidth}}>
       <button
         className='back-btn'
-        title='Go back in time! ;)'
+        title='Previous Ref'
         onClick={props.goBackInTime}
         style={{width: props.state.historyExists ? 55 : 0}}
       >❮</button>
@@ -23,6 +23,7 @@ export default function TabLinks(props: Props)
         title='Required references'
         data-tab-name='required-tab'
         onClick={props.handleTabToggle}
+        ref={/required/.test(props.state.activeTabName) ? ref.activeTabLink : null}
       >Required</button>
       <button
         className={`recommended-tab-link tab-link 
@@ -30,6 +31,7 @@ export default function TabLinks(props: Props)
         title='Recommended references'
         data-tab-name='recommended-tab'
         onClick={props.handleTabToggle}
+        ref={/recommended/.test(props.state.activeTabName) ? ref.activeTabLink : null}
       >Recommended</button>
       <button
         className={`graph-tab-link tab-link
@@ -38,7 +40,12 @@ export default function TabLinks(props: Props)
         data-tab-name='graph-tab'
         style={{background: /graph/.test(props.state.activeTabName) ? getCSSProps().graphTablinkHoverBg : ''}}
         onClick={props.handleTabToggle}
+        ref={/graph/.test(props.state.activeTabName) ? ref.activeTabLink : null}
       >★</button>
     </div>
   )
-}
+});
+
+
+
+export default TabLinks;

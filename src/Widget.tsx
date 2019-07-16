@@ -1,5 +1,4 @@
-import React, { ReactInstance, CSSProperties } from 'react';
-import ReactDOM from 'react-dom';
+import React, { CSSProperties } from 'react';
 import Dropdown from './components/Dropdown';
 import Loader from './components/Loader';
 import vis, { Network, Options } from 'vis';
@@ -92,13 +91,24 @@ class Widget extends React.Component<{}, State>
 
   isViewedWithMobile: boolean = false;
 
-  dropdown: HTMLDivElement | any = null;
+  child_refs: any = {
+    dropdown: React.createRef<any>(),
+    activeTabLink: React.createRef<any>(),
+    activeTab: React.createRef<any>(),
+    requiredTab: React.createRef<any>(),
+    recommendedTab: React.createRef<any>(),
+    graphTab: React.createRef<any>(),
+    graph: React.createRef<any>(),
+    refItemWrapper: React.createRef<any>(),
+    graphTooltip: React.createRef<any>()
+  }
 
-  activeTabLink: HTMLButtonElement | any = null;
+  refIDInputEl = React.createRef<any>();
 
-  activeTab: HTMLUListElement | any = null;
+  widget = React.createRef<any>();
 
-  serverHostURL: string = /localhost/.test(window.location.href) ? 'localhost:1323' : widgetconfig.lemmaChainServerHost;
+  serverHostURL: string = /localhost/.test(window.location.href) ? 
+                            'localhost:1323' : widgetconfig.lemmaChainServerHost;
 
   //copy initial/first state object and set at index 0 of history
   history: State[] = [];
@@ -114,8 +124,8 @@ class Widget extends React.Component<{}, State>
     else {
       this.setState(prevState =>
       {
-        let {dropdownIsCollapsed} = prevState,
-            dropdownNewHeight = this.resizeDropdownHeightTo(dropdownIsCollapsed ? this.activeTab : 0);
+        const {dropdownIsCollapsed} = prevState,
+            dropdownNewHeight = this.resizeDropdownHeightTo(dropdownIsCollapsed ? this.child_refs.activeTab.current : 0);
 
         return {
           dropdownIsCollapsed: !dropdownIsCollapsed,
@@ -129,16 +139,16 @@ class Widget extends React.Component<{}, State>
 
   copyRefID = (e: React.MouseEvent<HTMLButtonElement>) =>
   {
-    let tooltip = e.currentTarget,
-        refIDInputEl = this.findNode(this, '#refIDCopy');
+    const tooltip = e.currentTarget;
     
-    refIDInputEl.select();
+    this.refIDInputEl.current.select();
     document.execCommand("copy");
-    tooltip.innerHTML = 'Copied to clipboard';
+    this.refIDInputEl.current.blur();
+    tooltip.textContent = 'Copied to clipboard';
     setTimeout(() => {
       this.setState({tooltipIsActive: false});
       setTimeout(() => {
-        tooltip.innerHTML = 'Copy';
+        tooltip.textContent = 'Copy';
       }, 300);
     }, 1500);
   }
@@ -147,17 +157,12 @@ class Widget extends React.Component<{}, State>
 
   handleTabToggle = (e: React.MouseEvent<HTMLButtonElement>): void =>
   {
-    let activeTabName: string;
-
-    //get all tab and tabLink elements
-    this.activeTabLink = e.currentTarget;
-    activeTabName = this.activeTabLink.getAttribute('data-tab-name');
-    this.activeTab = this.findNode(this, `.${activeTabName}`);
-    //HACK: see Dropdown.tsx for code used to remove 'active' classNames from inactive elements (tabs/tab-links)
-    this.activeTab.classList.add('active-tab');
+    const currentTab: any = this.child_refs.activeTab.current,
+          currentTabLink: any = e.currentTarget,
+          activeTabName: string = currentTabLink.getAttribute('data-tab-name');
 
     this.setState({
-      dropdownCurHeight: this.resizeDropdownHeightTo(this.activeTab),
+      dropdownCurHeight: this.resizeDropdownHeightTo(currentTab),
       activeTabName: activeTabName,
       activeTabLinkName: `${activeTabName}-link`
     });
@@ -174,7 +179,7 @@ class Widget extends React.Component<{}, State>
     if (/extern-link/.test(e.target.className))
       return;
     
-    let refID: any = e.currentTarget.dataset.id;
+    const refID: any = e.currentTarget.dataset.id;
 
     //first set loading to true to visualize fadeout
     this.setState({refIsLoading: true});
@@ -195,7 +200,7 @@ class Widget extends React.Component<{}, State>
             this.setState({
               refIsLoading: false,
               historyExists: true,
-              dropdownCurHeight: this.resizeDropdownHeightTo(this.activeTab)
+              dropdownCurHeight: this.resizeDropdownHeightTo(this.child_refs.activeTab.current)
             });
             //update history
             this.history.push(Object.assign({}, this.state));
@@ -228,10 +233,6 @@ class Widget extends React.Component<{}, State>
       }); 
     else { return this.setState({historyExists: false}); }
 
-    //reset active tab and tabLink to active tab and tabLink in the past
-    this.activeTab = this.findNode(this, `.${this.history[pastIndex].activeTabName}`);
-    this.activeTabLink = this.findNode(this, `.${this.history[pastIndex].activeTabLinkName}`);
- 
     //remove/delete past future having travelled back in time
     this.history.pop();
 
@@ -255,15 +256,15 @@ class Widget extends React.Component<{}, State>
   /**
    * @param findNode: ReactDOM traverser function - querySelector; returns a DOM node
    */
-  findNode(parent: ReactInstance, childName?:string): any
-  {
-    let DOMp: any = ReactDOM.findDOMNode(parent),
-        queryAll: HTMLElement[] = DOMp.querySelectorAll(childName);
+  // findNode(parent: ReactInstance, childName?:string): any
+  // {
+  //   let DOMp: any = ReactDOM.findDOMNode(parent),
+  //       queryAll: HTMLElement[] = DOMp.querySelectorAll(childName);
 
-    if (childName)
-      return queryAll[1] ? queryAll : DOMp.querySelector(childName);
-    return DOMp;
-  }
+  //   if (childName)
+  //     return queryAll[1] ? queryAll : DOMp.querySelector(childName);
+  //   return DOMp;
+  // }
 
 
 
@@ -272,36 +273,28 @@ class Widget extends React.Component<{}, State>
    */
   setGraphNodesAndEdges = (_ref: Payload): void =>
   {
-    let themeCSS = this.cssProps,
-        ref: any = Object.assign({}, _ref),
-        refHasParents = _ref.refs.length > 0 ? true : false,
-        //making a copy of refs (parents) to avoid modifying actual parents
-        parents = _ref.refs.map((parent: any) => Object.assign({}, parent)),
-        colors = {
-          self: {bg: themeCSS.graphCurrentNodeBg, bdr: themeCSS.graphCurrentNodeBorderColor},
-          required: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor},
-          recommended: {bg: '#20dcff', bdr: '#10bcf0'},
-          alien: {bg: '#c0c0c0', bdr: '#b0b0b0'},
-          other: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor}
-        };
+    const themeCSS = this.cssProps,
+          ref: any = Object.assign({}, _ref),
+          refHasParents = _ref.refs.length > 0 ? true : false,
+          //making a copy of refs (parents) to avoid modifying actual parents
+          parents = _ref.refs.map((parent: any) => Object.assign({}, parent)),
+          colors = {
+            self: {bg: themeCSS.graphCurrentNodeBg, bdr: themeCSS.graphCurrentNodeBorderColor},
+            required: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor},
+            recommended: {bg: '#20dcff', bdr: '#10bcf0'},
+            alien: {bg: '#c0c0c0', bdr: '#b0b0b0'},
+            other: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor}
+          };
 
         
     //returns object of node properties e.g. color, font, background, border etc.
-    let nodeProps = (_ref: Payload): object => 
+    const nodeProps = (_ref: Payload): object => 
     {
-      let color: any = {},
-          isCurrentRef: boolean = _ref.id === this.state.refID;
+      const color: any = {},
+            isCurrentRef: boolean = _ref.id === this.state.refID;
 
-      //i.e. if ref is not alien to current ref (book), proceed to add required/recommended colors
-      // if (this.state.payload.refs.find((ref: any) => _ref.id.replace(/.*\/(.*)/, '$1') === ref.id.replace(/.*\/(.*)/, '$1')))
-      // {
-      //   color.bg = _ref.ref_type === 'required' ? colors.required.bg : colors.recommended.bg;
-      //   color.bdr = _ref.ref_type === 'required' ? colors.required.bdr : colors.recommended.bdr;
-      // }
-      // else {
-        color.bg = colors.other.bg;
-        color.bdr = colors.other.bdr;
-      // }
+      color.bg = colors.other.bg;
+      color.bdr = colors.other.bdr;
 
       return {
         font: {
@@ -328,10 +321,10 @@ class Widget extends React.Component<{}, State>
       };
     };
 
-    let pushNodesAndEdges = (): void =>
+    const pushNodesAndEdges = (): void =>
     {
-      let parent: Payload;
-      for (parent of parents)
+      // let parent: Payload;
+      for (let parent of parents)
       {
         let _nodeProps: any = nodeProps(parent),
             nodeExists: boolean = false;
@@ -339,13 +332,11 @@ class Widget extends React.Component<{}, State>
         //prepare and push nodes for visualization. 
         //PS: If parent (ref) doesn't already exist in network, push to network
         for (let node of this.graph.nodes)
-        {
           if (node.id.replace(/.*\/(.*)/, '$1') === parent.id.replace(/.*\/(.*)/, '$1'))
           {
             nodeExists = true;
             break;
           }
-        }
 
         if (!nodeExists)
         {
@@ -359,7 +350,6 @@ class Widget extends React.Component<{}, State>
           this.graph.nodes[0].id = parent.id.replace(/.*\/(.*)/, '$1');
         }
           
-
         //prepare and push edges for visualization
         this.graph.edges.unshift({
           from: ref.id.replace(/.*\/(.*)/, '$1'),
@@ -419,12 +409,12 @@ class Widget extends React.Component<{}, State>
     //if no nodes exist (which implies no parent(s)), do not proceed to visualize graph to avoid errors
     if (this.graph.nodes.length < 1)
       return;
-
+    
         //create an array with nodes
     let nodes = new vis.DataSet(this.graph.nodes),
         //create an array with edges
         edges = new vis.DataSet(this.graph.edges),
-        container: HTMLDivElement = this.findNode(this, '#graph'),
+        container: any = this.child_refs.graph.current,
         //set graph data
         data = {
           nodes: nodes,
@@ -440,25 +430,25 @@ class Widget extends React.Component<{}, State>
         },
         //create a network
         network: Network = new vis.Network(container, data, options),
-        graphTooltipEl: HTMLDivElement = this.findNode(this, '.graph-tooltip');
+        graphTooltip = this.child_refs.graphTooltip.current;
         
-    let moveAndUpdateGraphTooltip = (params: any): void => 
-        {
-          //'params.node' implies event is triggered by node-hover event while 'params.nodes[0]' implies event is triggered by node-click event
-          let label: string = !params.node ? params.nodes[0] : params.node,
-              currentNode = this.graph.nodes.find((node: any) => label === node.id);
+    const moveAndUpdateGraphTooltip = (params: any): void => 
+    {
+      //'params.node' implies event is triggered by node-hover event while 'params.nodes[0]' implies event is triggered by node-click event
+      let label: string = !params.node ? params.nodes[0] : params.node,
+          currentNode = this.graph.nodes.find((node: any) => label === node.id);
 
-          graphTooltipEl.innerHTML = 
-            `${currentNode.data.title}<br />
-            <i style='font-size: 11px;'>
-              ${!params.node ? currentNode.data.authors.join(', ') : ''}
-            </i>
-            <span style='font-size: 9px;'>
-              ${!params.node ? currentNode._id : ''}
-            </span>`;
-          graphTooltipEl.style.left = `${Math.ceil(params.pointer.DOM.x) - 10}px`;
-          graphTooltipEl.style.top = `${Math.ceil(params.pointer.DOM.y) - (!params.node ? 15 : 0)}px`;
-        };
+      graphTooltip.innerHTML = 
+        `${currentNode.data.title}<br />
+        <i style='font-size: 11px;'>
+          ${!params.node ? currentNode.data.authors.join(', ') : ''}
+        </i>
+        <span style='font-size: 9px;'>
+          ${!params.node ? currentNode._id : ''}
+        </span>`;
+      graphTooltip.style.left = `${Math.ceil(params.pointer.DOM.x) - 10}px`;
+      graphTooltip.style.top = `${Math.ceil(params.pointer.DOM.y) - (!params.node ? 15 : 0)}px`;
+    };
     
     //network nodes event listeners
     network.on('selectNode', params =>
@@ -508,6 +498,18 @@ class Widget extends React.Component<{}, State>
 
 
 
+  componentDidUpdate(p: any, nextProps: any)
+  {
+    const { activeTabName, dropdownIsCollapsed } = nextProps,
+          dropdownCurHeight = this.resizeDropdownHeightTo(this.child_refs.activeTab.current);
+
+    if (!dropdownIsCollapsed)
+      if (activeTabName !== this.state.activeTabName)
+        this.setState({ dropdownCurHeight: dropdownCurHeight });
+  }
+
+  
+
   async componentDidMount()
   {
     //check what device user is running
@@ -515,10 +517,10 @@ class Widget extends React.Component<{}, State>
       this.isViewedWithMobile = true;
 
     //now set value of constant Widget height which will also be used in computing loader wrapper height in Dropdown.tsx
-    this.height = this.findNode(this).offsetHeight;
-    this.dropdown = this.findNode(this, '.dropdown');     
-    this.activeTabLink = this.findNode(this, '.active-tab-link');
-    this.activeTab = this.findNode(this, '.required-tab');
+    
+    this.height = this.widget.current.offsetHeight;
+
+    let activeTab = this.child_refs.activeTab.current;
     
     this.setState({refIsLoading: true});
     
@@ -538,7 +540,7 @@ class Widget extends React.Component<{}, State>
             this.setState({
               errOccurred: false,
               refIsLoading: false,
-              dropdownCurHeight: !this.state.dropdownIsCollapsed ? this.resizeDropdownHeightTo(this.activeTab) : this.state.dropdownCurHeight
+              dropdownCurHeight: !this.state.dropdownIsCollapsed ? this.resizeDropdownHeightTo(activeTab) : this.state.dropdownCurHeight
             });
           }
           //delay till state payload is set before visualizing to avoid errors
@@ -555,14 +557,14 @@ class Widget extends React.Component<{}, State>
       //just for proper English grammar sentence casing
       let errMsg = String(e).replace(/(\w+)?error:/i, '').trim(),
           appendDot = errMsg.substr(-1) !== '.' ? `${errMsg}.` : errMsg,
-          grammarfiedErrMsg = appendDot.charAt(0).toUpperCase() + appendDot.substr(1,);
+          grammifiedErrMsg = appendDot.charAt(0).toUpperCase() + appendDot.substr(1,);
 
       this.setState({
         //TO-DO: delete this line in production
         payload: Get_HardCoded_Refs(),
         //TO-DO: uncomment this line in production
         // errOccurred: true,
-        errMsg: `${grammarfiedErrMsg}`,
+        errMsg: `${grammifiedErrMsg}`,
         refIsLoading: false
       });
       //HACK: The following setTimeout function is for a case where user toggles dropdown while Lemma Chain is still fetching data and has not yet resolved
@@ -570,7 +572,7 @@ class Widget extends React.Component<{}, State>
       setTimeout(() => 
       {
         this.setState({
-          dropdownCurHeight: !this.state.dropdownIsCollapsed ? this.resizeDropdownHeightTo(this.activeTab) : this.state.dropdownCurHeight
+          dropdownCurHeight: !this.state.dropdownIsCollapsed ? this.resizeDropdownHeightTo(activeTab) : this.state.dropdownCurHeight
         });
         //TO-DO: delete this line in production
         this.visualizeGraph();
@@ -586,24 +588,24 @@ class Widget extends React.Component<{}, State>
           this.setState({tooltipIsActive: false});
       }
 
-      let googleFontCDN = document.getElementById('font-cdn') as HTMLElement;
+      const googleFontCDN = document.getElementById('font-cdn') as HTMLElement;
 
-      //HACK: This is for to wait or delay till fonts are loaded before getting height of activeTab in order not to get a height below height of tab with loaded fonts since offset height of container is set to auto and relative to size of font
-      let awaitFontLoad = async () => 
+      //HACK: This is for to wait or delay till fonts are loaded before setting height of activeTab in order not to set a height below height of tab with loaded fonts since offset height of container is set to auto and relative to size of font
+      const awaitFontLoad = async () => 
       {
         try { await fetch(`${googleFontCDN.getAttribute('href')}`); }
         finally 
         {
           //set maximum height of dropdown to height of three items [before adding scroll bar]
-          let heightRef = this.findNode(this, '.item-wrapper')[0].offsetHeight;
-          this.findNode(this, '.tab').forEach((tab: any) => 
-          {
-            //exclude graph-tab from getting max-height since graph should be displayed full
-            if (!/graph-tab/.test(tab.className))
-              tab.style.maxHeight = `${heightRef * (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) + 2}px`;
-          });
+          const heightRef = this.child_refs.refItemWrapper.current.offsetHeight,
+                maxHeight = `${heightRef * (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) + 2}px`;
+
+          //using activeTab here instead of requiredTab since on component mount, requiredTab is activeTab
+          this.child_refs.activeTab.current.style.maxHeight = maxHeight;
+          this.child_refs.recommendedTab.current.style.maxHeight = maxHeight;
+
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
-          this.history[0].dropdownCurHeight = this.resizeDropdownHeightTo(this.activeTab);
+          this.history[0].dropdownCurHeight = this.resizeDropdownHeightTo(this.child_refs.activeTab.current);
           this.history[0].dropdownIsCollapsed = false;
         }
       }
@@ -618,7 +620,7 @@ class Widget extends React.Component<{}, State>
 
   render()
   {
-    let refIDWrapperStyle: CSSProperties =
+    const refIDWrapperStyle: CSSProperties =
         {
           position: 'relative',
           display: 'flex',
@@ -626,8 +628,10 @@ class Widget extends React.Component<{}, State>
         };
 
     return (
-      <div className={`widget ${this.isViewedWithMobile ? 'isViewedWithMobile' : ''}`}
-        style={{maxWidth: widgetconfig.widgetMaxWidth}}>
+      <div 
+        className={`widget ${this.isViewedWithMobile ? 'isViewedWithMobile' : ''}`}
+        style={{maxWidth: widgetconfig.widgetMaxWidth}}
+        ref={this.widget}>
         <button
           className={`tool-tip ${this.state.tooltipIsActive ? '' : 'fade-out'}`}
           onClick={this.copyRefID}>Copy
@@ -655,6 +659,7 @@ class Widget extends React.Component<{}, State>
                   border: 'none',
                   top: -100
                 }}
+                ref={this.refIDInputEl}
                 onChange={(e) => e.target.value = this.state.refID}
               />
             </span>
@@ -670,12 +675,14 @@ class Widget extends React.Component<{}, State>
           <span className={`caret-icon ${this.state.dropdownIsCollapsed ? 'flip-caret-icon' : ''}`}>❮</span>
         </section>
         <Dropdown
-          state={this.state}
+          state={{...this.state}}
           height={this.height}
           isViewedWithMobile={this.isViewedWithMobile}
           handleTabToggle={this.handleTabToggle}
           handleReferenceClick={this.handleReferenceClick}
           goBackInTime={this.goBackInTime}
+          ref={{...this.child_refs}}
+          refItemWrapper={this.child_refs.refItemWrapper}
         />
       </div>
     );

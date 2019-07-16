@@ -16,7 +16,7 @@ export interface Props
 
 
 
-function Dropdown(props: Props)
+const Dropdown: any = React.forwardRef<any>((props: any, Ref: any) => 
 {
   let requiredRefExists: boolean = props.state.payload.refs.some((ref: any) => /required/.test(ref.ref_type)),
       recommendedRefExists: boolean = props.state.payload.refs.some((ref: any) => /recommended/.test(ref.ref_type)),
@@ -24,7 +24,7 @@ function Dropdown(props: Props)
       renderGraph: React.ReactElement = 
         <div className='tab-items-wrapper graph-wrapper'>
           <h5 className='title'>Graph (Node) Visualization of Refs:</h5>
-          <div id='graph'></div>
+          <div id='graph' ref={Ref.graph}></div>
           <div id='graph-key'>
             Key:<br />
             <span className='key key-current'></span> current ref.<br />
@@ -32,16 +32,22 @@ function Dropdown(props: Props)
             <span className='key key-line-required'></span> required<br />
             <span className='key key-line-recommended'></span> recommended
           </div>
-          <span className={`graph-tooltip ${props.state.graphNodeIsHovered ? '' : 'fade-out'}`}></span>
+          <span
+            className={`graph-tooltip ${props.state.graphNodeIsHovered ? '' : 'fade-out'}`}
+            ref={Ref.graphTooltip}></span>
         </div>;
 
 
   return (
-    <section className='dropdown' style={{height: props.state.dropdownCurHeight, borderBottomWidth: props.state.dropdownIsCollapsed ? 0 : 2}}>
+    <section
+      className='dropdown'
+      style={{height: props.state.dropdownCurHeight, borderBottomWidth: props.state.dropdownIsCollapsed ? 0 : 2}}
+      ref={Ref.dropdown}>
       <TabLinks
         state={props.state}
         goBackInTime={props.goBackInTime}
         handleTabToggle={props.handleTabToggle}
+        ref={Ref.activeTabLink}
       />
       <div className='tabs-container' style={{position: 'relative'}}>
         <Loader
@@ -57,7 +63,8 @@ function Dropdown(props: Props)
         <div className='tabs-wrapper' style={{opacity: props.state.refIsLoading ? 0 : 1}}>
           <ul className={`tab required-tab
             ${/required/.test(props.state.activeTabName) ? 'active-tab' : ''}
-            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}> 
+            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+            ref={/required/.test(props.state.activeTabName) ? Ref.activeTab : Ref.requiredTab}> 
             {
               props.state.errOccurred ?
                 <DisplayStatusMessage
@@ -73,9 +80,10 @@ function Dropdown(props: Props)
                       data={ref.data}
                       id={ref.id}
                       refs={ref.refs}
-                      externLink='#!'
+                      externLink={ref.url ? ref.url : null}
                       key={key}
                       handleReferenceClick={props.handleReferenceClick}
+                      ref={props.refItemWrapper}
                     />
                   : null)
                 : <DisplayStatusMessage 
@@ -88,7 +96,8 @@ function Dropdown(props: Props)
 
           <ul className={`tab recommended-tab
             ${/recommended/.test(props.state.activeTabName) ? 'active-tab' : ''}
-            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}>
+            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+            ref={/recommended/.test(props.state.activeTabName) ? Ref.activeTab : Ref.recommendedTab}>
             {
               props.state.errOccurred ?
                 <DisplayStatusMessage
@@ -104,9 +113,10 @@ function Dropdown(props: Props)
                       data={ref.data}
                       id={ref.id}
                       refs={ref.refs}
-                      externLink='#!'
+                      externLink={ref.url ? ref.url : null}
                       key={key}
                       handleReferenceClick={props.handleReferenceClick}
+                      ref={props.refItemWrapper}
                     />
                   : null)
                 : <DisplayStatusMessage
@@ -120,7 +130,8 @@ function Dropdown(props: Props)
           
           <ul className={`tab graph-tab
             ${/graph/.test(props.state.activeTabName) ? 'active-tab' : ''}
-            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}>
+            ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+            ref={/graph/.test(props.state.activeTabName) ? Ref.activeTab : null}>
             {
               ifCanVisualizeGraph ? renderGraph
                 : <DisplayStatusMessage
@@ -135,7 +146,7 @@ function Dropdown(props: Props)
       </div>
     </section>
   );
-}
+})
 
 
 
