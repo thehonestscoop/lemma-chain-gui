@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import Dropdown from './components/Dropdown';
 import Loader from './components/Loader';
 import vis, { Network, Options } from 'vis';
@@ -6,6 +6,16 @@ import { setTimeout } from 'timers';
 import Get_HardCoded_Refs from './JSON_MockUp_Sample';
 import { getCSSProps } from './ThemeCSS';
 import widgetconfig from './widgetconfig.json';
+import ToggleBarItems from './components/ToggleBarItems';
+import TabLinks from './components/TabLinks';
+import Tabs from './components/Tabs';
+import {
+  ToggleBarItemsContext,
+  LoaderContext,
+  DropdownContext,
+  TabLinksContext,
+  TabsContext
+} from './context';
 
 
 
@@ -100,10 +110,9 @@ class Widget extends React.Component<{}, State>
     graphTab: React.createRef<any>(),
     graph: React.createRef<any>(),
     refItemWrapper: React.createRef<any>(),
-    graphTooltip: React.createRef<any>()
+    graphTooltip: React.createRef<any>(),
+    refIDInputEl: React.createRef<any>()
   }
-
-  refIDInputEl = React.createRef<any>();
 
   widget = React.createRef<any>();
 
@@ -120,12 +129,14 @@ class Widget extends React.Component<{}, State>
   handleDropdownToggle = (e: any) =>
   {
     if (e.target.className.match('ref-identifier'))
-      this.setState({tooltipIsActive: !this.state.tooltipIsActive});
+      this.setState({ tooltipIsActive: !this.state.tooltipIsActive });
     else {
       this.setState(prevState =>
       {
         const {dropdownIsCollapsed} = prevState,
-            dropdownNewHeight = this.resizeDropdownHeightTo(dropdownIsCollapsed ? this.child_refs.activeTab.current : 0);
+            dropdownNewHeight = this.resizeDropdownHeightTo(
+              dropdownIsCollapsed ? this.child_refs.activeTab.current : 0
+            );
 
         return {
           dropdownIsCollapsed: !dropdownIsCollapsed,
@@ -141,12 +152,12 @@ class Widget extends React.Component<{}, State>
   {
     const tooltip = e.currentTarget;
     
-    this.refIDInputEl.current.select();
+    this.child_refs.refIDInputEl.current.select();
     document.execCommand("copy");
-    this.refIDInputEl.current.blur();
+    this.child_refs.refIDInputEl.current.blur();
     tooltip.textContent = 'Copied to clipboard';
     setTimeout(() => {
-      this.setState({tooltipIsActive: false});
+      this.setState({ tooltipIsActive: false });
       setTimeout(() => {
         tooltip.textContent = 'Copy';
       }, 300);
@@ -231,7 +242,7 @@ class Widget extends React.Component<{}, State>
         backInTime = Object.assign({}, past);
         return backInTime;
       }); 
-    else { return this.setState({historyExists: false}); }
+    else { return this.setState({ historyExists: false }); }
 
     //remove/delete past future having travelled back in time
     this.history.pop();
@@ -279,11 +290,11 @@ class Widget extends React.Component<{}, State>
           //making a copy of refs (parents) to avoid modifying actual parents
           parents = _ref.refs.map((parent: any) => Object.assign({}, parent)),
           colors = {
-            self: {bg: themeCSS.graphCurrentNodeBg, bdr: themeCSS.graphCurrentNodeBorderColor},
-            required: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor},
-            recommended: {bg: '#20dcff', bdr: '#10bcf0'},
-            alien: {bg: '#c0c0c0', bdr: '#b0b0b0'},
-            other: {bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor}
+            self: { bg: themeCSS.graphCurrentNodeBg, bdr: themeCSS.graphCurrentNodeBorderColor },
+            required: { bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor },
+            recommended: { bg: '#20dcff', bdr: '#10bcf0' },
+            alien: { bg: '#c0c0c0', bdr: '#b0b0b0' },
+            other: { bg: themeCSS.graphParentNodesBg, bdr: themeCSS.graphParentNodesBorderColor }
           };
 
         
@@ -360,7 +371,7 @@ class Widget extends React.Component<{}, State>
               scaleFactor: 0.5
             }
           },
-          length: 80,
+          length: 120,
           font: {..._nodeProps.font, size: 9},
           color: { 
             color: parent.ref_type === 'required' ? this.cssProps.graphNetworkRequiredEdgeColor : this.cssProps.graphNetworkRecommendedEdgeColor,
@@ -456,7 +467,7 @@ class Widget extends React.Component<{}, State>
         </span>
         <i style='font-size: 9px;'>${currentNode.url ? renderLink : ''}</i>`;
       graphTooltip.style.left = `${Math.ceil(params.pointer.DOM.x) - 10}px`;
-      graphTooltip.style.top = `${Math.ceil(params.pointer.DOM.y) - (!params.node ? 15 : 0)}px`;
+      graphTooltip.style.top = `${Math.ceil(params.pointer.DOM.y - (graphTooltip.offsetHeight - 10)) - 15}px`;
     };
     
     //network nodes event listeners
@@ -466,6 +477,7 @@ class Widget extends React.Component<{}, State>
         graphNodeIsHovered: true,
         graphNodeIsActive: true
       })
+      console.log(params.event.center, '...', params.pointer)
       moveAndUpdateGraphTooltip(params);
     });
     network.on('deselectNode', () => 
@@ -482,27 +494,30 @@ class Widget extends React.Component<{}, State>
         moveAndUpdateGraphTooltip(params);
       }
     });
-    network.on('blurNode', () => this.setState({graphNodeIsHovered: this.state.graphNodeIsActive ? true : false}));
-    network.on('dragStart', () => this.setState({graphNodeIsHovered: false}));
-    network.on('dragEnd', () => this.setState({graphNodeIsHovered: false}));
+    network.on('blurNode', () => this.setState({ 
+      graphNodeIsHovered: this.state.graphNodeIsActive ? true : false 
+    }));
+    network.on('dragStart', () => this.setState({ graphNodeIsHovered: false }));
+    network.on('dragEnd', () => this.setState({ graphNodeIsHovered: false }));
     
     let graphIsZoomed = false,
         initialScale = this.graph.nodes.length < 10 ? 0.85 : 0.55;
 
-    network.on('zoom', (params) => 
+    network.on('zoom', () => 
     {
       initialScale = network.getScale();
-      this.setState({graphNodeIsHovered: false});
+      this.setState({ graphNodeIsHovered: false });
     });
     network.on('doubleClick', () => 
     {
       if (!graphIsZoomed)
-        network.moveTo({scale: initialScale + 0.5});
+        network.moveTo({ scale: initialScale + 0.5 });
       else
-        network.moveTo({scale: initialScale});
+        network.moveTo({ scale: initialScale });
+
       graphIsZoomed = !graphIsZoomed;
     });
-    network.once('stabilized', () => network.moveTo({scale: initialScale}));
+    network.once('stabilized', () => network.moveTo({ scale: initialScale }));
   }
 
 
@@ -527,7 +542,7 @@ class Widget extends React.Component<{}, State>
 
     let activeTab = this.child_refs.activeTab.current;
     
-    this.setState({refIsLoading: true});
+    this.setState({ refIsLoading: true });
     
     try
     {
@@ -590,7 +605,7 @@ class Widget extends React.Component<{}, State>
       document.body.onclick = (e: any) => 
       {
         if (!/tool-tip|ref-identifier/.test(e.target.className))
-          this.setState({tooltipIsActive: false});
+          this.setState({ tooltipIsActive: false });
       }
 
       const googleFontCDN = document.getElementById('font-cdn') as HTMLElement;
@@ -598,10 +613,12 @@ class Widget extends React.Component<{}, State>
       //HACK: This is for to wait or delay till fonts are loaded before setting height of activeTab in order not to set a height below height of tab with loaded fonts since offset height of container will be relative to size of font
       const awaitFontLoad = async () => 
       {
-        try { await fetch(`${googleFontCDN.getAttribute('href')}`); }
+        try { 
+          await fetch(`${googleFontCDN.getAttribute('href')}`);
+        }
         finally 
         {
-          //set maximum height of dropdown to height of N items [before adding scroll bar]
+          //set maximum height of dropdown to height of N items [before adding scroll bar in case of overflow]
           const heightRef = this.child_refs.refItemWrapper.current.offsetHeight,
                 maxHeight = `${heightRef * (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) + 2}px`;
 
@@ -625,60 +642,73 @@ class Widget extends React.Component<{}, State>
 
   render()
   {
+    let toggleBarItemsContextProviderValue = {
+          state: { ...this.state },
+          copyRefID: this.copyRefID,
+          handleDropdownToggle: this.handleDropdownToggle,
+          refs: { ...this.child_refs }
+        },
+        toggleBarLoaderContextProviderValue = {
+          refIsLoading: this.state.refIsLoading,
+          attributes: {
+            size: 8,
+            color: 'white',
+            type: 'minor'
+          }
+        },
+        tabLinksContextProviderValue = {
+          state: { ...this.state },
+          goBackInTime: this.goBackInTime,
+          handleTabToggle: this.handleTabToggle,
+          ref: this.child_refs.activeTabLink
+        },
+        dropdownContextProviderValue = {
+          state: { ...this.state },
+          ref: this.child_refs.dropdown
+        },
+        tabsContextProviderValue = {
+          state: { ...this.state },
+          refs: { ...this.child_refs },
+          handleReferenceClick: this.handleReferenceClick
+        },
+        loaderContextProviderValue = {
+          refIsLoading: this.state.refIsLoading,
+          attributes: {
+            size: 12,
+            color: getCSSProps().themeBg,
+            rider: this.state.payload.id ? 'Populating References...' : 'Loading References...',
+            type: 'major',
+            wrapperHeight: this.state.dropdownCurHeight - this.tabLinksWrapperheight
+          }
+        }
+        
+
     return (
       <div 
         className={`widget ${this.isViewedWithMobile ? 'isViewedWithMobile' : ''}`}
-        style={{maxWidth: widgetconfig.widgetMaxWidth}}
+        style={{ maxWidth: widgetconfig.widgetMaxWidth }}
         ref={this.widget}>
-        <button
-          className={`tool-tip ${this.state.tooltipIsActive ? '' : 'fade-out'}`}
-          onClick={this.copyRefID}
-        >Copy</button>
-        <section className='dropdown-toggle-bar' onClick={this.handleDropdownToggle}>
-          <span style={{alignSelf: 'center'}}>LC</span>
-          <span className='refIDWrapper'>
-            <span
-              className='ref-identifier'
-              title={`Title: ${this.state.payload.data.title}\nAuthor(s): ${this.state.payload.data.authors.join(', ')}\nRef. ID: ${this.state.refID}`}
-              style={{opacity: this.state.refIsLoading ? 0 : 1}}>
-              {this.state.refID}
-              {/*HACK: This is for copying to clipboard as _NODE_.select() doesn't work for non-input elements, and TypeScript throws some error when trying to 'window.getSelection()'*/}
-              <input
-                type='text'
-                value={this.state.refID}
-                id='refIDCopy'
-                style={{
-                  position: 'absolute',
-                  width: 1,
-                  height: 1,
-                  border: 'none',
-                  top: -100
-                }}
-                ref={this.refIDInputEl}
-                onChange={(e) => e.target.value = this.state.refID}
-              />
-            </span>
-            <Loader
-              refIsLoading={this.state.refIsLoading}
-              attributes={{
-                size: 8,
-                color: 'white',
-                type: 'minor'
-              }}
-            />
-          </span>
-          <span className={`caret-icon ${this.state.dropdownIsCollapsed ? 'flip-caret-icon' : ''}`}>❮</span>
-        </section>
-        <Dropdown
-          state={{...this.state}}
-          tabLinksWrapperheight={this.tabLinksWrapperheight}
-          isViewedWithMobile={this.isViewedWithMobile}
-          handleTabToggle={this.handleTabToggle}
-          handleReferenceClick={this.handleReferenceClick}
-          goBackInTime={this.goBackInTime}
-          ref={{...this.child_refs}}
-          refItemWrapper={this.child_refs.refItemWrapper}
-        />
+        <ToggleBarItemsContext.Provider value={toggleBarItemsContextProviderValue}>
+          <LoaderContext.Provider value={toggleBarLoaderContextProviderValue}>
+            <ToggleBarItems>
+              <Loader />
+            </ToggleBarItems>
+          </LoaderContext.Provider>
+        </ToggleBarItemsContext.Provider>
+        <DropdownContext.Provider value={dropdownContextProviderValue}>
+          <TabLinksContext.Provider value={tabLinksContextProviderValue}>
+            <TabsContext.Provider value={tabsContextProviderValue}>
+              <LoaderContext.Provider value={loaderContextProviderValue}>
+                <Dropdown>
+                  <TabLinks />
+                  <Tabs>
+                    <Loader />
+                  </Tabs>
+                </Dropdown>
+              </LoaderContext.Provider>
+            </TabsContext.Provider>
+          </TabLinksContext.Provider>
+        </DropdownContext.Provider>
       </div>
     );
   }

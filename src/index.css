@@ -316,10 +316,16 @@ body {
   z-index: 1;
 }
 
+.widget .tabs-wrapper ul.active-tab.graph-tab {
+  overflow: visible;
+  z-index: 2;
+}
+
 .widget .tabs-wrapper ul .graph-wrapper {
   text-align: center;
   min-height: 250px;
   padding: 10px;
+  padding-top: 13px;
   position: relative;
   background: #eeeeee;
   color: inherit;
@@ -383,6 +389,7 @@ body {
       -ms-flex-direction: column;
           flex-direction: column;
   color: #fff;
+  z-index: 6;
   font-size: 14px;
   border-radius: 3px;
   padding: 6px 8px;
@@ -414,7 +421,6 @@ body {
 
 .tool-tip {
   top: 70%;
-  z-index: 5;
   cursor: pointer;
 }
 
