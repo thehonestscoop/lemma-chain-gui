@@ -95,13 +95,13 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  width: 80%;
+  width: 75%;
 }
 
 .widget .dropdown-toggle-bar .refIDWrapper .ref-identifier {
   -webkit-transition: 0.3s;
   transition: 0.3s;
-  max-width: 100%;
+  width: auto;
   word-wrap: break-word;
   text-align: center;
   -ms-flex-item-align: start;
@@ -333,6 +333,10 @@ body {
 
 .widget .tabs-wrapper ul .graph-wrapper h5 {
   margin: 5px 0 10px 0;
+}
+
+.widget .tabs-wrapper ul .graph-wrapper .vis-network {
+  z-index: 2;
 }
 
 .widget .tabs-wrapper ul .graph-wrapper #graph {

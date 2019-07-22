@@ -97,12 +97,12 @@ body
       position: relative;
       display: flex;
       justify-content: center;
-      width: 80%;
+      width: 75%;
 
       .ref-identifier
       {
         transition: 0.3s;
-        max-width: 100%;
+        width: auto;
         word-wrap: break-word;
         text-align: center;
         align-self: flex-start;
@@ -335,6 +335,9 @@ body
         color: inherit;
         
         h5 { margin: 5px 0 10px 0; }
+
+        .vis-network
+        { z-index: 2; }
 
         #graph
         {

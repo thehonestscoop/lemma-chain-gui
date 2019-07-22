@@ -9,8 +9,8 @@ const COLORS: any = colors;
 //change theme colour to colour name/code you wish to, to see effect. PS: You can also use colors.COLOUR_NAME.name (e.g. colors.blue.name) to get colour hints
 const THEME_COLOR: string = widgetconfig.themeColor || 'rgb(145, 0, 145)',
       DROPDOWN_BGCOLOR: string = widgetconfig.dropdownBg || 'white',
-      GRAPH_TABLINK_COLOR: string = widgetconfig.graphTablinkColor || '', //suggested: yellow
-      GRAPH_TABLINK_HOVER_BG: string = widgetconfig.graphTablinkHoverBg || ''; //suggested: rgb(32, 199, 245)
+      GRAPH_TABLINK_COLOR: string = widgetconfig.graphTablinkColor || '', //recommended: yellow
+      GRAPH_TABLINK_HOVER_BG: string = widgetconfig.graphTablinkHoverBg || ''; //recommended: rgb(32, 199, 245)
 
 
 
@@ -79,11 +79,11 @@ export function getColor(rgbDiff: number[], color: string = THEME_COLOR): {varia
       b: number,
       variant: string;
 
-  if (/^[a-zA-Z]{3,}$/i.test(color) && COLORS[color])
+  if (/^[a-zA-Z]{3,}$/i.test(color) && (color in COLORS))
     rgbVal = COLORS[color].rgbVal;
   else if (/^#[0-9a-f]{3,6}$/i.test(color))
     rgbVal = color.replace(/#([0-9a-f]{1,2})([0-9a-f]{1,2})([0-9a-f]{1,2})/ig, '$1 $2 $3')
-                .split(' ').map((hex) => Number(parseInt(hex, 16).toString(10)));
+                .split(' ').map(hex => Number(parseInt(hex.length === 2 ? hex : `${hex}f`, 16).toString(10)));
   else if (/^rgb\(\d{1,3},\s*\d{1,3},\s*\d{1,3}\)$/i.test(color))
     rgbVal = color.replace(/.*\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)/, '$1 $2 $3')
                 .split(' ').map((val: string) => Number(val));
