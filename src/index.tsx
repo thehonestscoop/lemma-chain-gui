@@ -13,7 +13,6 @@ import getThemeCSSText from './ThemeCSS';
 ReactDOM.render(<Widget />, document.querySelector('#root'));
 
 
-
 let cssText = getThemeCSSText(),
     styleElement = document.createElement('style') as any;
 

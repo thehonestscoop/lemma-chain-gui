@@ -427,7 +427,7 @@ class Widget extends React.Component<{}, State>
         edges = new vis.DataSet(this.graph.edges),
         container: any = this.child_refs.graph.current,
         //set graph data
-        data = {
+        data: any = {
           nodes: nodes,
           edges: edges
         },
