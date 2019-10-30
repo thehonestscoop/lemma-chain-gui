@@ -4,14 +4,22 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import Widget from './Widget';
 import './index.css';
 import getThemeCSSText from './ThemeCSS';
 
+import reducers from './reducers';
 
+let store = createStore(reducers);
 
-ReactDOM.render(<Widget />, document.querySelector('#root'));
-
+ReactDOM.render(
+  <Provider store={store}>
+    <Widget />
+  </Provider>,
+  document.querySelector('#root')
+);
 
 let cssText = getThemeCSSText(),
     styleElement = document.createElement('style') as any;

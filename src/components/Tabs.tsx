@@ -13,10 +13,10 @@ const Tabs: any = React.forwardRef<any>((props: any, noRefs: any) =>
     <TabsContext.Consumer>
       {(val: any) =>
         {
-          let requiredRefExists: boolean = val.state.payload.refs.some((ref: any) => /required/.test(ref.ref_type)),
-              recommendedRefExists: boolean = val.state.payload.refs.some((ref: any) => /recommended/.test(ref.ref_type)),
-              ifCanVisualizeGraph: boolean = (requiredRefExists || recommendedRefExists) && !val.state.errOccurred,
-              renderGraph: React.ReactElement = 
+          let requiredRefExists: boolean = val.state.payload.refs.some((ref: any) => /required/.test(ref.ref_type));
+          let recommendedRefExists: boolean = val.state.payload.refs.some((ref: any) => /recommended/.test(ref.ref_type));
+          let ifCanVisualizeGraph: boolean = (requiredRefExists || recommendedRefExists) && !val.state.errOccurred;
+          const renderGraph: React.ReactElement = 
                 <div className='tab-items-wrapper graph-wrapper'>
                   <div id='graph' ref={val.refs.graph}></div>
                   <div id='graph-key'>
