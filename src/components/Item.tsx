@@ -3,11 +3,11 @@ import { mapProps4state } from "../redux/state";
 import { connect } from "react-redux";
 import handleReferenceClick from "../widget-methods/handleReferenceClick";
 import {
-  mapProps4dispatch
+  mapProps4dispatch, getCorrespondingDispatchNames
 } from "../redux/actions";
 
 const Item = React.forwardRef((props: any, unusedRef: any) => {
-  // console.log("ITEM: ", props);
+  // console.log('Items checking for refIsLoading: ', props.refIsLoading);
   const refItemWrapper = props.refItemWrapper;
   const appendURL = (
     <a
@@ -49,14 +49,19 @@ const Item = React.forwardRef((props: any, unusedRef: any) => {
 // const mapStateToProps = mapProps4state(allProps);
 // const mapDispatchToProps = mapProps4dispatch(allActionNames)
 
-const mapStateToProps = mapProps4state([
+const stateProps = [
   "payload",
-  "graph"
-]);
-const mapDispatchToProps = mapProps4dispatch([
-  "UPDATE_PAYLOAD",
-  "POPULATE_GRAPH"
-]);
+  "graph",
+  'refIsLoading',
+  'graphNodeIsHovered',
+  'graphNodeIsActive',
+  'refID',
+  'historyExists',
+  'dropdownCurHeight'
+];
+
+const mapStateToProps = mapProps4state(stateProps);
+const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
 
 export default connect(
   mapStateToProps,

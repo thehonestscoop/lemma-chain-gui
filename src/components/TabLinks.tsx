@@ -2,17 +2,19 @@ import React from 'react';
 // import { Props } from './Dropdown';
 import { getCSSProps } from '../ThemeCSS';
 import widgetconfig from '../widgetconfig.json';
-import { mapProps4state } from '../redux/state';
+import { mapProps4state, setStateWrapper } from '../redux/state';
 import { connect } from 'react-redux';
 import goBackInTime from '../widget-methods/goBackInTime';
 import handleTabToggle from '../widget-methods/handleTabToggle';
-import { mapProps4dispatch } from '../redux/actions';
+import { mapProps4dispatch, getCorrespondingDispatchNames } from '../redux/actions';
 
 
 
 
 const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
 {
+  const setState = setStateWrapper(props);
+  
   return (
     <div className='tab-links-wrapper' style={{height: props.dropdownIsCollapsed ? 0 : 48, 
       maxWidth: widgetconfig.widgetMaxWidth}}>
@@ -27,7 +29,7 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
           ${/required/.test(props.activeTabName) ? 'active-tab-link' : ''}`}
         title='Required references'
         data-tab-name='required-tab'
-        onClick={(e) => handleTabToggle(e, props)}
+        onClick={onTabLinkClick}
         ref={/required/.test(props.activeTabName) ? props.ref : null}
       >Required</button>
       <button
@@ -35,7 +37,7 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
           ${/recommended/.test(props.activeTabName) ? 'active-tab-link' : ''}`}
         title='Recommended references'
         data-tab-name='recommended-tab'
-        onClick={(e) => handleTabToggle(e, props)}
+        onClick={onTabLinkClick}
         ref={/recommended/.test(props.activeTabName) ? props.ref : null}
       >Recommended</button>
       <button
@@ -44,21 +46,28 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
         title='View graph'
         data-tab-name='graph-tab'
         style={{background: /graph/.test(props.activeTabName) ? getCSSProps().graphTablinkHoverBg : ''}}
-        onClick={(e) => handleTabToggle(e, props)}
+        onClick={onTabLinkClick}
         ref={/graph/.test(props.activeTabName) ? props.ref : null}
       >★</button>
     </div>
-  )
+  );
+
+  function onTabLinkClick(e: any) {
+    const activeTabName = e.target.getAttribute("data-tab-name");
+    const tabLink = e.target;
+    
+    if (tabLink.getAttribute("data-tab-name"))
+      setState({
+        activeTabName: activeTabName,
+        activeTabLinkName: `${activeTabName}-link`
+      }).then(props => handleTabToggle(tabLink, props));
+  }
 });
 
+const stateProps = ['dropdownIsCollapsed', 'historyExists', 'activeTabName', 'dropdownCurHeight', 'activeTabLinkName'];
 
-
-const mapStateToProps = mapProps4state(['dropdownIsCollapsed', 'historyExists', 'activeTabName']);
-const mapDispatchToProps = mapProps4dispatch([
-  'SET_DROPDOWN_IS_COLLAPSED',
-  'SET_HISTORY_EXISTS',
-  'UPDATE_ACTIVE_TAB_NAME'
-])
+const mapStateToProps = mapProps4state(stateProps);
+const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
 
 export default connect(mapStateToProps, mapDispatchToProps)(TabLinks);
 

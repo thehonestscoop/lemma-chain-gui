@@ -8,12 +8,13 @@ const handleDropdownToggle = (e: any, props: any) => {
   if (e.target.className.match("ref-identifier"))
     setState({ tooltipIsActive: !props.tooltipIsActive });
   else {
-    const { dropdownIsCollapsed } = props;
-      
+    let { dropdownIsCollapsed } = props;
+ 
     setState({
       dropdownIsCollapsed: !dropdownIsCollapsed,
       dropdownCurHeight: dropdownIsCollapsed ? DOM_refs.activeTab.current : 0
     });
+    console.log('dropdownIsCollapsed', props.dropdownIsCollapsed)
   }
 };
 

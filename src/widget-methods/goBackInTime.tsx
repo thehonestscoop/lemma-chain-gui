@@ -15,7 +15,8 @@ const goBackInTime = (props: any): any => {
     setState({ ...toPast });
   }
   else {
-    return setState({ historyExists: false });
+    setState({ historyExists: false });
+    return null;
   }
 
   //remove/delete past's future having travelled back in time

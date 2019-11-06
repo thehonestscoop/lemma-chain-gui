@@ -4,7 +4,7 @@ import Item from "./Item";
 import DisplayStatusMessage from "./DisplayStatusMessage";
 import { connect } from "react-redux";
 import { mapProps4state } from "../redux/state";
-import { mapProps4dispatch } from "../redux/actions";
+import { mapProps4dispatch, getCorrespondingDispatchNames } from "../redux/actions";
 // import { getCSSProps } from '../ThemeCSS';
 
 const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
@@ -115,7 +115,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
   );
 });
 
-const mapStateToProps = mapProps4state([
+const stateProps = [
   "payload",
   "errOccurred",
   "graphNodeIsHovered",
@@ -123,16 +123,10 @@ const mapStateToProps = mapProps4state([
   "dropdownIsCollapsed",
   "historyExists",
   "activeTabName"
-]);
-const mapDispatchToProps = mapProps4dispatch([
-  "UPDATE_PAYLOAD",
-  "SET_ERROR_OCCURRED",
-  "SET_DROPDOWN_IS_COLLAPSED",
-  "SET_REF_IS_LOADING",
-  "SET_DROPDOWN_IS_COLLAPSED",
-  "SET_HISTORY_EXISTS",
-  "UPDATE_ACTIVE_TAB_NAME"
-]);
+];
+
+const mapStateToProps = mapProps4state(stateProps);
+const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
 
 export default connect(
   mapStateToProps,

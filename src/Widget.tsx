@@ -16,7 +16,7 @@ import {
   mapProps4state
 } from "./redux/state";
 import visualizeGraph from "./widget-methods/visualizeGraph";
-import { mapProps4dispatch } from "./redux/actions";
+import { mapProps4dispatch, getCorrespondingDispatchNames } from "./redux/actions";
 
 export const DOM_refs: any = {
   dropdown: React.createRef<any>(),
@@ -154,6 +154,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 
   render() {
+    
     const toggleBarLoaderAttributes = {
             size: 8,
             color: 'white',
@@ -166,7 +167,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
       type: 'major',
       wrapperHeight: this.props.dropdownCurHeight! - this.tabLinksWrapperheight
     };
-
+    
     return (
       <div
         className={`widget ${
@@ -188,17 +189,10 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 }
 
-const mapStateToProps = mapProps4state(['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graph']);
-const mapDispatchToProps = mapProps4dispatch([
-  'UPDATE_REF_ID',
-  'SET_DROPDOWN_IS_COLLAPSED',
-  'RESIZE_DROPDOWN_HEIGHT',
-  'SET_TOOLTIP_IS_ACTIVE',
-  'UPDATE_HISTORY',
-  'DELETE_PREV_HISTORY',
-  'UPDATE_PAYLOAD',
-  'POPULATE_GRAPH'
-])
+const stateProps = ['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graph', 'refIsLoading', 'errOccurred', 'errMsg'];
+
+const mapStateToProps = mapProps4state(stateProps);
+const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
 
 export default connect(mapStateToProps, mapDispatchToProps)(Widget);
 

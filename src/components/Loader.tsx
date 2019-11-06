@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { mapProps4state } from '../redux/state';
 import { connect } from 'react-redux';
-import { mapProps4dispatch } from '../redux/actions';
+import { mapProps4dispatch, getCorrespondingDispatchNames } from '../redux/actions';
 //Loader returns 'minor loader' (without wrapper) or 'major loader' (with wrapper) depending on context 
 function Loader({ attributes, refIsLoading }: any)
 {
@@ -62,9 +62,8 @@ function Loader({ attributes, refIsLoading }: any)
   return attributes.type === 'minor' ? minorLoader : majorLoader;
 }
 
-const mapStateToProps = mapProps4state(['refIsLoading']);
-const mapDispatchToProps = mapProps4dispatch([
-  'SET_REF_IS_LOADING'
-])
+const stateProps = ['refIsLoading'];
+const mapStateToProps = mapProps4state(stateProps);
+const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
 
 export default connect(mapStateToProps, mapDispatchToProps)(Loader);

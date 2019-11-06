@@ -85,13 +85,22 @@ export const mapProps4state = (needProps: string[]) => (
 
 export const setStateWrapper = (componentProps: any) => (
   stateProps: any
-): void => {
-  for (const actAndProp of actionsAndProps) {
-    const [action, prop] = actAndProp as any;
+): Promise<State> => new Promise(resolve => {
+  const propsResolved: any = {...componentProps};
+
+  for (const stateProp in stateProps) {
+    for (const actAndProp of actionsAndProps) {
+      const [action, prop] = actAndProp as any;
     
-    if (componentProps[action().type])
-      componentProps[action().type](stateProps[prop]);
+      if (stateProp === prop) {
+        componentProps[action().type](stateProps[prop]);
+        propsResolved[prop] = stateProps[prop];
+        break;
+      }
+      
+    }
   }
-};
+  resolve(propsResolved);
+});
 
 

@@ -16,6 +16,7 @@ const handleReferenceClick = (e: any, props: any): void => {
   //first set loading to true to visualize fadeout
   // props.SET_REF_IS_LOADING(true);
   setState({ refIsLoading: true });
+  console.log('handleReferenceClick checking for refIsLoading: ', props.refIsLoading);
 
   setTimeout(() => {
     let ref: any;

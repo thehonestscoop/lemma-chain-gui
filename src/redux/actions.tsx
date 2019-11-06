@@ -41,10 +41,13 @@ export const SET_HISTORY_EXISTS = (doesExist: boolean = false): ActionInterface 
   newState: doesExist
 });
 
-export const SET_REF_IS_LOADING = (isLoading: boolean = true): ActionInterface => ({
+export const SET_REF_IS_LOADING = (isLoading: any = false): ActionInterface => {
+  
+  return ({
   type: "SET_REF_IS_LOADING",
   newState: isLoading
-});
+})
+};
 
 export const UPDATE_PAYLOAD = (payload: Payload = Get_HardCoded_Refs()): ActionInterface => ({
   type: "UPDATE_PAYLOAD",
@@ -126,6 +129,23 @@ export const mapProps4dispatch = (needActions: string[]) =>
 
     return props;
   };
+
+export const getCorrespondingDispatchNames = (stateProps: string[]) => {
+  const dispatchNames = [];
+
+  for (const needProp of stateProps) {
+    for (const actionAndProp of actionsAndProps) {
+      const [action, prop] = actionAndProp as any;
+
+      if (prop === needProp) {
+        dispatchNames.push(action().type);
+        break;
+      }
+    }
+  }
+
+  return dispatchNames;
+}
 
 const actionNamesAndProps: {allActionNames: string[]; allProps: string[]} = {
   allActionNames: [],

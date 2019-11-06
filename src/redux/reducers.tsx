@@ -17,7 +17,7 @@ const dropdownCurHeight = (state = 0, action: A) => {
 
   function resizeDropdownHeightTo(
     activeTab: any,
-    constHeight = action.newState
+    constHeight = 48
   ) {
     //i.e. if the argument, activeTab, is an element and not a number (0)...
     //PS: Add 2px for border-bottom extension
@@ -45,7 +45,7 @@ const historyExists = (state = false, action: A) => {
   return state;
 };
 
-const refIsLoading = (state = true, action: A) => {
+const refIsLoading = (state = false, action: A) => {
   if ('SET_REF_IS_LOADING' === action.type) return action.newState;
   return state;
 };
