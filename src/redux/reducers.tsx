@@ -1,23 +1,23 @@
 import { combineReducers } from "redux";
 
-import { stateActions as actions, State } from "./state";
 // import { actionsAndProps as actions } from './actions';
 import { ActionInterface as A } from "./actions";
+import Get_HardCoded_Refs from "../JSON_MockUp_Sample";
 
 //the Reducers ...
 const dropdownIsCollapsed = (state = true, action: A) => {
-  if (typeCorresponds(action.type)) return action.isCollapsed;
+  if ('SET_DROPDOWN_IS_COLLAPSED' === action.type) return action.newState;
   return state;
 };
 
 const dropdownCurHeight = (state = 0, action: A) => {
-  if (typeCorresponds(action.type))
-    return resizeDropdownHeightTo(action.activeTab);
+  if ('RESIZE_DROPDOWN_HEIGHT' === action.type)
+    return resizeDropdownHeightTo(action.newState);
   return state;
 
   function resizeDropdownHeightTo(
     activeTab: any,
-    constHeight = action.constHeight
+    constHeight = action.newState
   ) {
     //i.e. if the argument, activeTab, is an element and not a number (0)...
     //PS: Add 2px for border-bottom extension
@@ -26,69 +26,66 @@ const dropdownCurHeight = (state = 0, action: A) => {
 };
 
 const refID = (state = "@powerofgod/17t8kcjuw", action: A) => {
-  if (typeCorresponds(action.type)) return action.refID;
+  if ('UPDATE_REF_ID' === action.type) return action.newState;
   return state;
 };
 
 const activeTabName = (state = "required-tab", action: A) => {
-  if (typeCorresponds(action.type)) return action.activeTabName;
+  if ('UPDATE_ACTIVE_TAB_NAME' === action.type) return action.newState;
   return state;
 };
 
 const activeTabLinkName = (state = "required-tab-link", action: A) => {
-  if (typeCorresponds(action.type)) return action.activeTabLinkName;
+  if ('UPDATE_ACTIVE_TABLINK_NAME' === action.type) return action.newState;
   return state;
 };
 
 const historyExists = (state = false, action: A) => {
-  if (typeCorresponds(action.type)) return action.doesExist;
+  if ('SET_HISTORY_EXISTS' === action.type) return action.newState;
   return state;
 };
 
 const refIsLoading = (state = true, action: A) => {
-  if (typeCorresponds(action.type)) return action.isLoading;
+  if ('SET_REF_IS_LOADING' === action.type) return action.newState;
   return state;
 };
 
-const payload = (state = {}, action: A) => {
-  if (typeCorresponds(action.type)) return action.payload;
+const payload = (state = Get_HardCoded_Refs(), action: A) => {
+  if ('UPDATE_PAYLOAD' === action.type) return action.newState;
   return state;
 };
 
 const errOccurred = (state = false, action: A) => {
-  if (typeCorresponds(action.type)) return action.didErr;
+  if ('SET_ERROR_OCCURRED' === action.type) return action.newState;
   return state;
 };
 
 const errMsg = (state = "", action: A) => {
-  if (typeCorresponds(action.type)) return action.errMsg;
+  if ('GET_ERR_MSG' === action.type) return action.newState;
   return state;
 };
 
 const graphNodeIsHovered = (state = false, action: A) => {
-  if (typeCorresponds(action.type)) return action.isHovered;
+  if ('SET_GRAPH_NODE_IS_HOVERED' === action.type) return action.newState;
   return state;
 };
 
 const graphNodeIsActive = (state = false, action: A) => {
-  if (typeCorresponds(action.type)) return action.isActive;
+  if ('SET_GRAPH_NODE_IS_ACTIVE' === action.type) return action.newState;
   return state;
 };
 
 const tooltipIsActive = (state = false, action: A) => {
-  if (typeCorresponds(action.type)) return action.isActive;
+  if ('SET_TOOLTIP_IS_ACTIVE' === action.type) return action.newState;
   return state;
 };
 
 const history = (state: any = [{}], action: A) => {
   switch (action.type) {
     case 'UPDATE_HISTORY':
-      return {
-        history: [
-          ...state.history,
-          { ...action.history }
-        ]
-      };
+      const copyHistory = state.history ?[ ...state.history ] : [{}]
+      copyHistory.push({ ...action.newState })
+      return { history: copyHistory };
     case 'DELETE_PREV_HISTORY':
       let copyState = { ...state };
       return copyState.history.pop();
@@ -97,8 +94,8 @@ const history = (state: any = [{}], action: A) => {
 };
 
 const graph = (state: any = { nodes: [], edges:[] }, action: A) => {
-  if (typeCorresponds(action.type))
-    return action.graph;
+  if ('POPULATE_GRAPH' === action.type)
+    return action.newState;
   return state;
 }
 
@@ -122,10 +119,3 @@ const reducers = combineReducers({
 
 export default reducers;
 
-//action type checker
-function typeCorresponds(_type: string) {
-  for (let type in actions)
-    if (actions[type] === _type) return true;
-    else if (Number(actions[type])) break;
-  return false;
-}

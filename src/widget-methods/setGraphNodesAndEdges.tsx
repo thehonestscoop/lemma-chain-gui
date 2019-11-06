@@ -1,17 +1,18 @@
 import { setStateWrapper, Payload } from '../redux/state';
-import { child_refs, cssProps } from '../Widget';
-import vis, { Network, Options } from 'vis';
+import { cssProps } from '../Widget';
 
 /**
  * @param setGraphNodesAndEdges: gets and pushes graph nodes and edges to network for visualization
  */
 const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
-  const themeCSS = cssProps,
-    ref: any = Object.assign({}, _ref),
-    refHasParents = _ref.refs.length > 0 ? true : false,
-    //making a copy of refs (parents) to avoid modifying actual parents
-    parents = _ref.refs.map((parent: any) => Object.assign({}, parent)),
-    colors = {
+  const setState = setStateWrapper(props);
+  const graphCopy = { ...props.graph };
+  const themeCSS = cssProps;
+  const ref: any = Object.assign({}, _ref);
+  const refHasParents = _ref.refs.length > 0 ? true : false;
+  //making a copy of refs (parents) to avoid modifying actual parents
+  const parents = _ref.refs.map((parent: any) => Object.assign({}, parent));
+  const colors = {
       self: {
         bg: themeCSS.graphCurrentNodeBg,
         bdr: themeCSS.graphCurrentNodeBorderColor
@@ -69,7 +70,7 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
 
       //prepare and push nodes for visualization.
       //PS: If parent (ref) doesn't already exist in network, push to network
-      for (let node of props.graph.nodes)
+      for (let node of graphCopy.nodes)
         if (
           node.id.replace(/.*\/(.*)/, "$1") ===
           parent.id.replace(/.*\/(.*)/, "$1")
@@ -79,7 +80,7 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
         }
 
       if (!nodeExists) {
-        props.graph.nodes.unshift(
+        graphCopy.nodes.unshift(
           Object.assign(
             {
               _id: parent.id,
@@ -94,11 +95,12 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
           )
         );
         //extract hashID part of refID
-        props.graph.nodes[0].id = parent.id.replace(/.*\/(.*)/, "$1");
+        graphCopy.nodes[0].id = parent.id.replace(/.*\/(.*)/, "$1");
+        setState({ graph: graphCopy });
       }
 
       //prepare and push edges for visualization
-      props.graph.edges.unshift({
+      graphCopy.edges.unshift({
         from: ref.id.replace(/.*\/(.*)/, "$1"),
         to: parent.id.replace(/.*\/(.*)/, "$1"),
         arrows: {
@@ -133,13 +135,13 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
   //i.e. if 'current' book (ref) has parents and itself has not yet been added to nodes (network), proceed to add
   if (
     refHasParents &&
-    !props.graph.nodes.find(
+    !graphCopy.nodes.find(
       (node: any) =>
         node.id.replace(/.*\/(.*)/, "$1") === ref.id.replace(/.*\/(.*)/, "$1")
     )
   ) {
     //first add current node (ref) to nodes before pushing other nodes to network
-    props.graph.nodes.unshift(
+    graphCopy.nodes.unshift(
       Object.assign(
         {
           _id: ref.id,
@@ -150,7 +152,8 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
       )
     );
     //extract hashID part of refID
-    props.graph.nodes[0].id = ref.id.replace(/.*\/(.*)/, "$1");
+    graphCopy.nodes[0].id = ref.id.replace(/.*\/(.*)/, "$1");
+    setState({ graph: graphCopy });
     pushNodesAndEdges();
   } else if (refHasParents) pushNodesAndEdges();
 };

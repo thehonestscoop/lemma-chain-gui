@@ -1,5 +1,5 @@
 import { setStateWrapper } from '../redux/state';
-import { child_refs } from '../Widget';
+import { DOM_refs } from '../Widget';
 import setGraphNodesAndEdges from './setGraphNodesAndEdges';
 import vis, { Network, Options } from 'vis';
 
@@ -14,7 +14,6 @@ const visualizeGraph = (props: any): void => {
   };
 
   setState({ graph: graph });
-
   setGraphNodesAndEdges(props.payload, props);
 
   //if no nodes exist (which implies no parent(s)), do not proceed to visualize graph to avoid errors
@@ -24,7 +23,7 @@ const visualizeGraph = (props: any): void => {
   let nodes = new vis.DataSet(props.graph.nodes),
     //create an array with edges
     edges = new vis.DataSet(props.graph.edges),
-    container: any = child_refs.graph.current,
+    container: any = DOM_refs.graph.current,
     //set graph data
     data: any = {
       nodes: nodes,
@@ -40,7 +39,7 @@ const visualizeGraph = (props: any): void => {
     },
     //create a network
     network: Network = new vis.Network(container, data, options),
-    graphTooltip = child_refs.graphTooltip.current;
+    graphTooltip = DOM_refs.graphTooltip.current;
 
   const moveAndUpdateGraphTooltip = (params: any): void => {
     //'params.node' implies event is triggered by node-hover event while 'params.nodes[0]' implies event is triggered by node-click event

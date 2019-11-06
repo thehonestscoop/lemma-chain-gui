@@ -1,5 +1,5 @@
 import { setStateWrapper } from "../redux/state";
-import { child_refs } from "../Widget";
+import { DOM_refs } from "../Widget";
 
 
 const handleDropdownToggle = (e: any, props: any) => {
@@ -12,7 +12,7 @@ const handleDropdownToggle = (e: any, props: any) => {
       
     setState({
       dropdownIsCollapsed: !dropdownIsCollapsed,
-      dropdownCurHeight: dropdownIsCollapsed ? child_refs.activeTab.current : 0
+      dropdownCurHeight: dropdownIsCollapsed ? DOM_refs.activeTab.current : 0
     });
   }
 };

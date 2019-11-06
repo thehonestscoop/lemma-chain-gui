@@ -1,5 +1,5 @@
 import { setStateWrapper } from '../redux/state';
-import { child_refs } from '../Widget';
+import { DOM_refs } from '../Widget';
 import visualizeGraph from './visualizeGraph';
 
 /**
@@ -29,7 +29,7 @@ const handleReferenceClick = (e: any, props: any): void => {
           setState({
             refIsLoading: false,
             historyExists: true,
-            dropdownCurHeight: child_refs.activeTab.current,
+            dropdownCurHeight: DOM_refs.activeTab.current,
             history: { ...props }
           });
           //update history

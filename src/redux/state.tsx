@@ -1,4 +1,4 @@
-import { mapProps4dispatch, actionsAndProps } from "../redux/actions";
+import { actionsAndProps } from "../redux/actions";
 
 export interface Graph {
   nodes?: any[],
@@ -87,13 +87,11 @@ export const setStateWrapper = (componentProps: any) => (
   stateProps: any
 ): void => {
   for (const actAndProp of actionsAndProps) {
-    const [action, prop] = [actAndProp[0], actAndProp[1]] as any;
-
+    const [action, prop] = actAndProp as any;
+    
     if (componentProps[action().type])
       componentProps[action().type](stateProps[prop]);
   }
 };
 
-// export const state 
 
-// export const getState = (useSelector: Function) => useSelector((state: State) => state);

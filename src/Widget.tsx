@@ -13,12 +13,12 @@ import {
   State as StateInterface,
   Payload as PayloadInterface,
   setStateWrapper,
-  mapProps4state,
-  State
+  mapProps4state
 } from "./redux/state";
 import visualizeGraph from "./widget-methods/visualizeGraph";
+import { mapProps4dispatch } from "./redux/actions";
 
-export const child_refs: any = {
+export const DOM_refs: any = {
   dropdown: React.createRef<any>(),
   activeTabLink: React.createRef<any>(),
   activeTab: React.createRef<any>(),
@@ -34,10 +34,6 @@ export const child_refs: any = {
 export const cssProps = getCSSProps();
 
 class Widget extends React.Component<StateInterface, StateInterface> {
-  constructor(props: State) {
-    super(props);
-  }
-
   tabLinksWrapperheight = 48;
 
   isViewedWithMobile: boolean = false;
@@ -60,7 +56,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
     )
     this.isViewedWithMobile = true;
 
-    let activeTab = child_refs.activeTab.current;
+    let activeTab = DOM_refs.activeTab.current;
 
     setState({ refIsLoading: true });
 
@@ -88,9 +84,9 @@ class Widget extends React.Component<StateInterface, StateInterface> {
       //NOTE: This block of code must be re-edited for production. It was modified just for testing purposes
       //TO-DO: Remodify code: Make url prop not optional in PayloadInterface interface at very top [line 17]...
       //TO-DO: delete this line in production
-      alert(
-        "Hi, there. \n\nLemma Chain GUI could not establish connection with server, hence, got hard-coded refs instead for testing purposes.\n\n- Godspower"
-      );
+      // alert(
+      //   "Hi, there. \n\nLemma Chain GUI could not establish connection with server, hence, got hard-coded refs instead for testing purposes.\n\n- Godspower"
+      // );
 
       //just for proper English grammar sentence casing
       //PS: This next three lines may eventually not be needed since code was remodified to not throw dev-oriented errors to user
@@ -100,7 +96,6 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         appendDot = errMsg.substr(-1) !== "." ? `${errMsg}.` : errMsg,
         grammifiedErrMsg =
           appendDot.charAt(0).toUpperCase() + appendDot.substr(1);
-
       setState({
         //TO-DO: delete this line in production
         payload: Get_HardCoded_Refs(),
@@ -135,17 +130,17 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           await fetch(`${googleFontCDN.getAttribute("href")}`);
         } finally {
           //set maximum height of dropdown to height of N items [before adding scroll bar in case of overflow]
-          const heightRef = child_refs.refItemWrapper.current.offsetHeight;
+          const heightRef = DOM_refs.refItemWrapper.current.offsetHeight;
           const maxHeight = `${heightRef *
               (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) +
               2}px`;
 
           //using activeTab here instead of requiredTab since on component mount, requiredTab is activeTab, and also to prevent ref forwarding error
-          child_refs.activeTab.current.style.maxHeight = maxHeight;
-          child_refs.recommendedTab.current.style.maxHeight = maxHeight;
+          DOM_refs.activeTab.current.style.maxHeight = maxHeight;
+          DOM_refs.recommendedTab.current.style.maxHeight = maxHeight;
 
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
-          copyHistory[0].dropdownCurHeight = child_refs.activeTab.current;
+          copyHistory[0].dropdownCurHeight = DOM_refs.activeTab.current;
           copyHistory[0].dropdownIsCollapsed = false;
           setState({ history: copyHistory });
         }
@@ -179,12 +174,12 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         }`}
         style={{ maxWidth: widgetconfig.widgetMaxWidth }}
         ref={this.widget}>
-        <ToggleBarItems>
+        <ToggleBarItems refs={DOM_refs}>
           <Loader attributes={toggleBarLoaderAttributes} />
         </ToggleBarItems>
         <Dropdown>
           <TabLinks />
-          <Tabs ref={child_refs}>
+          <Tabs refs={DOM_refs}>
             <Loader attributes={loaderAttributes} />
           </Tabs>
         </Dropdown>
@@ -193,8 +188,18 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 }
 
-const mapStateToProps = mapProps4state(['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload'])
+const mapStateToProps = mapProps4state(['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graph']);
+const mapDispatchToProps = mapProps4dispatch([
+  'UPDATE_REF_ID',
+  'SET_DROPDOWN_IS_COLLAPSED',
+  'RESIZE_DROPDOWN_HEIGHT',
+  'SET_TOOLTIP_IS_ACTIVE',
+  'UPDATE_HISTORY',
+  'DELETE_PREV_HISTORY',
+  'UPDATE_PAYLOAD',
+  'POPULATE_GRAPH'
+])
 
-export default connect(mapStateToProps)(Widget);
+export default connect(mapStateToProps, mapDispatchToProps)(Widget);
 
 

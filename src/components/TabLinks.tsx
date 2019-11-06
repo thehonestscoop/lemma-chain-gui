@@ -6,6 +6,7 @@ import { mapProps4state } from '../redux/state';
 import { connect } from 'react-redux';
 import goBackInTime from '../widget-methods/goBackInTime';
 import handleTabToggle from '../widget-methods/handleTabToggle';
+import { mapProps4dispatch } from '../redux/actions';
 
 
 
@@ -53,6 +54,11 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
 
 
 const mapStateToProps = mapProps4state(['dropdownIsCollapsed', 'historyExists', 'activeTabName']);
+const mapDispatchToProps = mapProps4dispatch([
+  'SET_DROPDOWN_IS_COLLAPSED',
+  'SET_HISTORY_EXISTS',
+  'UPDATE_ACTIVE_TAB_NAME'
+])
 
-export default connect(mapStateToProps)(TabLinks);
+export default connect(mapStateToProps, mapDispatchToProps)(TabLinks);
 

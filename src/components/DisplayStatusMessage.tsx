@@ -1,7 +1,8 @@
 import React, { CSSProperties } from "react";
 import { connect } from "react-redux";
 
-import { State, mapProps4state } from "../redux/state";
+import { mapProps4state } from "../redux/state";
+import { mapProps4dispatch } from "../redux/actions";
 
 /**
  * @param DisplayStatusMessage: Displays error message or 'book has no-ref' message depending on context.
@@ -73,5 +74,9 @@ function DisplayStatusMessage(props: any) {
 }
 
 const mapStateToProps = mapProps4state(["refIsLoading", "errMsg"]);
+const mapDispatchToProps = mapProps4dispatch([
+  'SET_REF_IS_LOADING',
+  'GET_ERR_MSG'
+])
 
-export default connect(mapStateToProps)(DisplayStatusMessage);
+export default connect(mapStateToProps, mapDispatchToProps)(DisplayStatusMessage);
