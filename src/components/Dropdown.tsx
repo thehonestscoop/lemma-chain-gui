@@ -1,27 +1,24 @@
-import React from 'react';
-import { DropdownContext } from '../context';
+import React from "react";
+import { connect } from "react-redux";
 
+import { State, mapProps4state } from "../redux/state";
+// import { DropdownContext } from '../context';
 
-
-const Dropdown: any = React.forwardRef<any>((props: any, ref: any) => 
-{
+const Dropdown: any = React.forwardRef<any>((props: any, ref: any) => {
   return (
-    <DropdownContext.Consumer>
-      {(val: any) => (
-        <section
-          className='dropdown'
-          style={{height: val.state.dropdownCurHeight, borderBottomWidth: val.state.dropdownIsCollapsed ? 0 : 2}}
-          ref={ref}>
-          {props.children}
-        </section>
-      )}
-    </DropdownContext.Consumer>
+    <section
+      className="dropdown"
+      style={{
+        height: props.dropdownCurHeight,
+        borderBottomWidth: props.dropdownIsCollapsed ? 0 : 2
+      }}
+      ref={ref}
+    >
+      {props.children}
+    </section>
   );
-})
+});
 
+const mapStateToProps = mapProps4state(["dropdownCurHeight", "dropdownIsCollapsed"]);
 
-
-export default Dropdown;
-
-
-
+export default connect(mapStateToProps)(Dropdown);

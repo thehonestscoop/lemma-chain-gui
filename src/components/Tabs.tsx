@@ -3,128 +3,105 @@ import { TabsContext } from '../context';
 import Item from './Item';
 // import Loader from './Loader';
 import DisplayStatusMessage from './DisplayStatusMessage';
+import { connect } from 'react-redux';
+import { mapProps4state } from '../redux/state';
 // import { getCSSProps } from '../ThemeCSS';
 
 
 
-const Tabs: any = React.forwardRef<any>((props: any, noRefs: any) =>
+const Tabs: any = React.forwardRef<any>((props: any, refs: any) =>
 {
+  let requiredRefExists: boolean = props.payload.refs.some((ref: any) => /required/.test(ref.ref_type));
+  let recommendedRefExists: boolean = props.payload.refs.some((ref: any) => /recommended/.test(ref.ref_type));
+  let ifCanVisualizeGraph: boolean = (requiredRefExists || recommendedRefExists) && !props.errOccurred;
+  const renderGraph: React.ReactElement = 
+        <div className='tab-items-wrapper graph-wrapper'>
+          <div id='graph' ref={refs.graph}></div>
+          <div id='graph-key'>
+            Key:<br />
+            <span className='key key-line-required'></span> required<br />
+            <span className='key key-line-recommended'></span> recommended
+          </div>
+          <span
+            className={`graph-tooltip ${props.graphNodeIsHovered ? '' : 'fade-out'}`}
+            ref={refs.graphTooltip}></span>
+        </div>;
+
   return (
-    <TabsContext.Consumer>
-      {(val: any) =>
-        {
-          let requiredRefExists: boolean = val.state.payload.refs.some((ref: any) => /required/.test(ref.ref_type));
-          let recommendedRefExists: boolean = val.state.payload.refs.some((ref: any) => /recommended/.test(ref.ref_type));
-          let ifCanVisualizeGraph: boolean = (requiredRefExists || recommendedRefExists) && !val.state.errOccurred;
-          const renderGraph: React.ReactElement = 
-                <div className='tab-items-wrapper graph-wrapper'>
-                  <div id='graph' ref={val.refs.graph}></div>
-                  <div id='graph-key'>
-                    Key:<br />
-                    <span className='key key-line-required'></span> required<br />
-                    <span className='key key-line-recommended'></span> recommended
-                  </div>
-                  <span
-                    className={`graph-tooltip ${val.state.graphNodeIsHovered ? '' : 'fade-out'}`}
-                    ref={val.refs.graphTooltip}></span>
-                </div>;
+    <div className='tabs-container' style={{position: 'relative'}}>
+      {props.children}
+      
+      <div className='tabs-wrapper' style={{opacity: props.refIsLoading ? 0 : 1}}>
+        <ul className={`tab required-tab
+          ${/required/.test(props.activeTabName) ? 'active-tab' : ''}
+          ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+          ref={/required/.test(props.activeTabName) ? refs.activeTab : refs.requiredTab}> 
+          {
+            props.errOccurred ?
+              <DisplayStatusMessage
+                typeofMsg='error'
+                ref_type='required'
+              />
+            : requiredRefExists ?
+                props.payload.refs.map((ref: any, key: number) => 
+                  ref.ref_type === 'required' ? 
+                  <Item
+                    externLink={ref.url ? ref.url : null}
+                    key={key}
+                    ref={refs.refItemWrapper}
+                  />
+                : null)
+              : <DisplayStatusMessage 
+                  typeofMsg='no-ref'
+                  ref_type='required'
+                />
+          }
+        </ul>
 
-          return (
-            <div className='tabs-container' style={{position: 'relative'}}>
-              {props.children}
-              
-              <div className='tabs-wrapper' style={{opacity: val.state.refIsLoading ? 0 : 1}}>
-                <ul className={`tab required-tab
-                  ${/required/.test(val.state.activeTabName) ? 'active-tab' : ''}
-                  ${!val.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
-                  ref={/required/.test(val.state.activeTabName) ? val.refs.activeTab : val.refs.requiredTab}> 
-                  {
-                    val.state.errOccurred ?
-                      <DisplayStatusMessage
-                        typeofMsg='error'
-                        errOccurred={val.state.errOccurred}
-                        ref_type='required'
-                        refIsLoading={val.state.refIsLoading}
-                      />
-                    : requiredRefExists ?
-                        val.state.payload.refs.map((ref: any, key: number) => 
-                          ref.ref_type === 'required' ? 
-                          <Item
-                            data={ref.data}
-                            id={ref.id}
-                            refs={ref.refs}
-                            externLink={ref.url ? ref.url : null}
-                            key={key}
-                            handleReferenceClick={val.handleReferenceClick}
-                            ref={val.refs.refItemWrapper}
-                          />
-                        : null)
-                      : <DisplayStatusMessage 
-                          typeofMsg='no-ref'
-                          ref_type='required'
-                          refIsLoading={val.state.refIsLoading}
-                        />
-                  }
-                </ul>
-
-                <ul className={`tab recommended-tab
-                  ${/recommended/.test(val.state.activeTabName) ? 'active-tab' : ''}
-                  ${!val.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
-                  ref={/recommended/.test(val.state.activeTabName) ? val.refs.activeTab : val.refs.recommendedTab}>
-                  {
-                    val.state.errOccurred ?
-                      <DisplayStatusMessage
-                        typeofMsg='error'
-                        errOccurred={val.state.errOccurred}
-                        ref_type='recommended'
-                        refIsLoading={val.state.refIsLoading}
-                      />
-                    : recommendedRefExists ?
-                        val.state.payload.refs.map((ref: any, key: number) => 
-                          ref.ref_type === 'recommended' ? 
-                          <Item
-                            data={ref.data}
-                            id={ref.id}
-                            refs={ref.refs}
-                            externLink={ref.url ? ref.url : null}
-                            key={key}
-                            handleReferenceClick={val.handleReferenceClick}
-                            ref={val.refs.refItemWrapper}
-                          />
-                        : null)
-                      : <DisplayStatusMessage
-                          typeofMsg='no-ref'
-                          ref_type='recommended'
-                          errOccurred=''
-                          refIsLoading={val.state.refIsLoading}
-                        />
-                  }
-                </ul>
-                
-                <ul className={`tab graph-tab
-                  ${/graph/.test(val.state.activeTabName) ? 'active-tab' : ''}
-                  ${!val.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
-                  ref={/graph/.test(val.state.activeTabName) ? val.refs.activeTab : null}>
-                  {
-                    ifCanVisualizeGraph ? renderGraph
-                      : <DisplayStatusMessage
-                          typeofMsg='no-ref'
-                          ref_type='graph'
-                          errOccurred={val.state.errOccurred}
-                          refIsLoading={val.state.refIsLoading}
-                        />
-                  }
-                </ul>
-              </div>
-            </div>
-          );
-        }
-      }
-    </TabsContext.Consumer>
+        <ul className={`tab recommended-tab
+          ${/recommended/.test(props.activeTabName) ? 'active-tab' : ''}
+          ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+          ref={/recommended/.test(props.activeTabName) ? refs.activeTab : refs.recommendedTab}>
+          {
+            props.errOccurred ?
+              <DisplayStatusMessage
+                typeofMsg='error'
+                ref_type='recommended'
+              />
+            : recommendedRefExists ?
+                props.payload.refs.map((ref: any, key: number) => 
+                  ref.ref_type === 'recommended' ? 
+                  <Item
+                    externLink={ref.url ? ref.url : null}
+                    key={key}
+                    ref={refs.refItemWrapper}
+                  />
+                : null)
+              : <DisplayStatusMessage
+                  typeofMsg='no-ref'
+                  ref_type='recommended'
+                />
+          }
+        </ul>
+        
+        <ul className={`tab graph-tab
+          ${/graph/.test(props.activeTabName) ? 'active-tab' : ''}
+          ${!props.isViewedWithMobile ? 'useCustomScrollBar' : ''}`}
+          ref={/graph/.test(props.activeTabName) ? refs.activeTab : null}>
+          {
+            ifCanVisualizeGraph ? renderGraph
+              : <DisplayStatusMessage
+                  typeofMsg='no-ref'
+                  ref_type='graph'
+                />
+          }
+        </ul>
+      </div>
+    </div>
   );
-  
 });
 
 
+const mapStateToProps = mapProps4state(['payload', 'errOccurred', 'graphNodeIsHovered', 'refIsLoading', 'dropdownIsCollapsed', 'historyExists', 'activeTabName']);
 
-export default Tabs;
+export default connect(mapStateToProps)(Tabs);

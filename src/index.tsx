@@ -10,7 +10,7 @@ import Widget from './Widget';
 import './index.css';
 import getThemeCSSText from './ThemeCSS';
 
-import reducers from './reducers';
+import reducers from './redux/reducers';
 
 let store = createStore(reducers);
 
