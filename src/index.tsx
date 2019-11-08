@@ -12,7 +12,7 @@ import getThemeCSSText from './ThemeCSS';
 
 import reducers from './redux/reducers';
 
-let store = createStore(reducers);
+export const store = createStore(reducers);
 
 ReactDOM.render(
   <Provider store={store}>

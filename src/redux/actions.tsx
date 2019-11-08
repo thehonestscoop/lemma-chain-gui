@@ -76,24 +76,19 @@ export const SET_TOOLTIP_IS_ACTIVE = (isActive: boolean = false): ActionInterfac
   newState: isActive
 });
 
-export const UPDATE_HISTORY = (history: State = {}): ActionInterface => ({
+export const UPDATE_HISTORY = (history: State = []): ActionInterface => ({
   type: "UPDATE_HISTORY",
-  newState: history
-});
-
-export const DELETE_PREV_HISTORY = (history: State = {}): ActionInterface => ({
-  type: "DELETE_PREV_HISTORY",
   newState: history
 });
 
 export const POPULATE_GRAPH_NODES = (graphNodes: any[] = []): ActionInterface => ({
   type: 'POPULATE_GRAPH_NODES',
-  newState: [ ...graphNodes ]
+  newState: graphNodes
 });
 
 export const POPULATE_GRAPH_EDGES = (graphEdges: any[] = []): ActionInterface => ({
   type: 'POPULATE_GRAPH_EDGES',
-  newState: [ ...graphEdges ]
+  newState: graphEdges
 });
 
 export const actionsAndProps = [
@@ -111,7 +106,6 @@ export const actionsAndProps = [
   [SET_GRAPH_NODE_IS_ACTIVE, 'graphNodeIsActive'],
   [SET_TOOLTIP_IS_ACTIVE, 'tooltipIsActive'],
   [UPDATE_HISTORY, 'history'],
-  // [DELETE_PREV_HISTORY, 'history'],
   [POPULATE_GRAPH_NODES, 'graphNodes'],
   [POPULATE_GRAPH_EDGES, 'graphEdges']
 ];

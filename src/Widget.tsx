@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 import Dropdown from "./components/Dropdown";
 import Loader from "./components/Loader";
 import { setTimeout } from "timers";
@@ -16,7 +16,11 @@ import {
   mapProps4state
 } from "./redux/state";
 import visualizeGraph from "./widget-methods/visualizeGraph";
-import { mapProps4dispatch, getCorrespondingDispatchNames } from "./redux/actions";
+import {
+  mapProps4dispatch,
+  getCorrespondingDispatchNames
+} from "./redux/actions";
+import { store } from "./index";
 
 export const DOM_refs: any = {
   dropdown: React.createRef<any>(),
@@ -45,8 +49,9 @@ class Widget extends React.Component<StateInterface, StateInterface> {
     : widgetconfig.lemmaChainServerHost;
 
   async componentDidMount() {
-    const setState = setStateWrapper(this.props);
-    const copyHistory = [ ...this.props.history ];
+    // console.log('widget history: ', this.props.history);
+    const setState = setStateWrapper(Object.assign({}, this.props));
+    const history = [ Object.assign({}, store.getState()) ];
 
     //check what device user is running
     if (
@@ -54,7 +59,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         window.navigator.userAgent
       )
     )
-    this.isViewedWithMobile = true;
+      this.isViewedWithMobile = true;
 
     let activeTab = DOM_refs.activeTab.current;
 
@@ -132,38 +137,40 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           //set maximum height of dropdown to height of N items [before adding scroll bar in case of overflow]
           const heightRef = DOM_refs.refItemWrapper.current.offsetHeight;
           const maxHeight = `${heightRef *
-              (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) +
-              2}px`;
+            (widgetconfig.widgetMaxNumOfRefsDisplayableAtOnce || 3) +
+            2}px`;
 
           //using activeTab here instead of requiredTab since on component mount, requiredTab is activeTab, and also to prevent ref forwarding error
           DOM_refs.activeTab.current.style.maxHeight = maxHeight;
           DOM_refs.recommendedTab.current.style.maxHeight = maxHeight;
 
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
-          copyHistory[0].dropdownCurHeight = DOM_refs.activeTab.current;
-          copyHistory[0].dropdownIsCollapsed = false;
-          setState({ history: copyHistory });
+          history[0].dropdownCurHeight = DOM_refs.activeTab.current;
+          history[0].dropdownIsCollapsed = false;
+          setState({ history: [ ...history ] });
         }
       };
       awaitFontLoad();
 
       //update history
-      copyHistory.push(Object.assign({}, this.props));
-      setState({ history: copyHistory })
+      history.push(Object.assign({}, store.getState()));
+      setState({ history: [ ...history ] });
     }
   }
 
   render() {
     const toggleBarLoaderAttributes = {
-            size: 8,
-            color: 'white',
-            type: 'minor'
-          };
+      size: 8,
+      color: "white",
+      type: "minor"
+    };
     const loaderAttributes = {
       size: 12,
       color: getCSSProps().themeBg,
-      rider: this.props.payload!.id ? 'Populating References...' : 'Loading References...',
-      type: 'major',
+      rider: this.props.payload!.id
+        ? "Populating References..."
+        : "Loading References...",
+      type: "major",
       wrapperHeight: this.props.dropdownCurHeight! - this.tabLinksWrapperheight
     };
 
@@ -173,7 +180,8 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           this.isViewedWithMobile ? "isViewedWithMobile" : ""
         }`}
         style={{ maxWidth: widgetconfig.widgetMaxWidth }}
-        ref={this.widget}>
+        ref={this.widget}
+      >
         <ToggleBarItems refs={DOM_refs}>
           <Loader attributes={toggleBarLoaderAttributes} />
         </ToggleBarItems>
@@ -188,11 +196,26 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 }
 
-const stateProps = ['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graphNodes', 'graphEdges', 'refIsLoading', 'errOccurred', 'errMsg'];
+const stateProps = [
+  "refID",
+  "dropdownIsCollapsed",
+  "dropdownCurHeight",
+  "tooltipIsActive",
+  "history",
+  "payload",
+  "graphNodes",
+  "graphEdges",
+  "refIsLoading",
+  "errOccurred",
+  "errMsg"
+];
 
 const mapStateToProps = mapProps4state(stateProps);
-const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
+const mapDispatchToProps = mapProps4dispatch(
+  getCorrespondingDispatchNames(stateProps)
+);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Widget);
-
-
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Widget);

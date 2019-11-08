@@ -80,17 +80,21 @@ const tooltipIsActive = (state = false, action: A) => {
   return state;
 };
 
-const history = (state: any = [{}], action: A) => {
-  switch (action.type) {
-    case 'UPDATE_HISTORY':
-      const copyHistory = state.history ? [ ...state.history ] : [{}]
-      copyHistory.push({ ...action.newState })
-      return { history: copyHistory };
-    case 'DELETE_PREV_HISTORY':
-      let copyState = { ...state };
-      return copyState.history.pop();
-    default: return state;
-  }
+const history = (state: any = [], action: A) => {
+  // switch (action.type) {
+  //   case :
+  //     const copyHistory = state.history ? [ ...state.history ] : [{}]
+  //     copyHistory.push({ ...action.newState })
+  //     return { history: copyHistory };
+  //   case 'DELETE_PREV_HISTORY':
+  //     let copyState = { ...state };
+  //     return copyState.history.pop();
+  //   default: return state;
+
+    
+  // }
+  if ('UPDATE_HISTORY' === action.type) return action.newState;
+  return state;
 };
 
 const graphNodes = (state: any = [], action: A) => {
