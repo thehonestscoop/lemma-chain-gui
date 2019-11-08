@@ -30,7 +30,7 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
         title='Required references'
         data-tab-name='required-tab'
         onClick={onTabLinkClick}
-        ref={/required/.test(props.activeTabName) ? props.ref : null}
+        ref={/required/.test(props.activeTabName) ? props.refs.activeTabLink : null}
       >Required</button>
       <button
         className={`recommended-tab-link tab-link 
@@ -38,7 +38,7 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
         title='Recommended references'
         data-tab-name='recommended-tab'
         onClick={onTabLinkClick}
-        ref={/recommended/.test(props.activeTabName) ? props.ref : null}
+        ref={/recommended/.test(props.activeTabName) ? props.refs.activeTabLink : null}
       >Recommended</button>
       <button
         className={`graph-tab-link tab-link
@@ -47,7 +47,7 @@ const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) =>
         data-tab-name='graph-tab'
         style={{background: /graph/.test(props.activeTabName) ? getCSSProps().graphTablinkHoverBg : ''}}
         onClick={onTabLinkClick}
-        ref={/graph/.test(props.activeTabName) ? props.ref : null}
+        ref={/graph/.test(props.activeTabName) ? props.refs.activeTabLink : null}
       >★</button>
     </div>
   );

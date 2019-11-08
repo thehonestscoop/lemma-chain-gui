@@ -9,14 +9,15 @@ import { mapProps4dispatch, getCorrespondingDispatchNames } from "../redux/actio
 
 const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
   const refs = props.refs;
-  let requiredRefExists: boolean = props.payload.refs.some((ref: any) =>
+  const requiredRefExists: boolean = props.payload.refs.some((ref: any) =>
     /required/.test(ref.ref_type)
   );
-  let recommendedRefExists: boolean = props.payload.refs.some((ref: any) =>
+  const recommendedRefExists: boolean = props.payload.refs.some((ref: any) =>
     /recommended/.test(ref.ref_type)
   );
-  let ifCanVisualizeGraph: boolean =
+  const ifCanVisualizeGraph: boolean =
     (requiredRefExists || recommendedRefExists) && !props.errOccurred;
+// console.log('these are the...', refs)
   const renderGraph: React.ReactElement = (
     <div className="tab-items-wrapper graph-wrapper">
       <div id="graph" ref={refs.graph}></div>
@@ -35,15 +36,13 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
       ></span>
     </div>
   );
-
+  
   return (
     <div className="tabs-container" style={{ position: "relative" }}>
       {props.children}
-
       <div
         className="tabs-wrapper"
-        style={{ opacity: props.refIsLoading ? 0 : 1 }}
-      >
+        style={{ opacity: props.refIsLoading ? 0 : 1 }}>
         <ul
           className={`tab required-tab
           ${/required/.test(props.activeTabName) ? "active-tab" : ""}
@@ -52,8 +51,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
             /required/.test(props.activeTabName)
               ? refs.activeTab
               : refs.requiredTab
-          }
-        >
+          }>
           {props.errOccurred ? (
             <DisplayStatusMessage typeofMsg="error" ref_type="required" />
           ) : requiredRefExists ? (
@@ -63,6 +61,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
                   externLink={ref.url ? ref.url : null}
                   key={key}
                   refItemWrapper={refs.refItemWrapper}
+                  itemPayload={ref}
                 />
               ) : null
             )
@@ -79,8 +78,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
             /recommended/.test(props.activeTabName)
               ? refs.activeTab
               : refs.recommendedTab
-          }
-        >
+          }>
           {props.errOccurred ? (
             <DisplayStatusMessage typeofMsg="error" ref_type="recommended" />
           ) : recommendedRefExists ? (
@@ -90,6 +88,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
                   externLink={ref.url ? ref.url : null}
                   key={key}
                   refItemWrapper={refs.refItemWrapper}
+                  itemPayload={ref}
                 />
               ) : null
             )
@@ -102,13 +101,12 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
           className={`tab graph-tab
           ${/graph/.test(props.activeTabName) ? "active-tab" : ""}
           ${!props.isViewedWithMobile ? "useCustomScrollBar" : ""}`}
-          ref={/graph/.test(props.activeTabName) ? refs.activeTab : null}
-        >
-          {ifCanVisualizeGraph ? (
+          ref={/graph/.test(props.activeTabName) ? refs.activeTab : null}>
+          { ifCanVisualizeGraph ? (
             renderGraph
           ) : (
             <DisplayStatusMessage typeofMsg="no-ref" ref_type="graph" />
-          )}
+          ) }
         </ul>
       </div>
     </div>

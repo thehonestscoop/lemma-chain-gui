@@ -14,7 +14,6 @@ const handleDropdownToggle = (e: any, props: any) => {
       dropdownIsCollapsed: !dropdownIsCollapsed,
       dropdownCurHeight: dropdownIsCollapsed ? DOM_refs.activeTab.current : 0
     });
-    console.log('dropdownIsCollapsed', props.dropdownIsCollapsed)
   }
 };
 

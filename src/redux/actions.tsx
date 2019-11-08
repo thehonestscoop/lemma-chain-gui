@@ -1,4 +1,4 @@
-import { Payload, State, Graph } from './state';
+import { Payload, State } from './state';
 import Get_HardCoded_Refs from '../JSON_MockUp_Sample';
 
 export interface ActionInterface {
@@ -41,13 +41,10 @@ export const SET_HISTORY_EXISTS = (doesExist: boolean = false): ActionInterface 
   newState: doesExist
 });
 
-export const SET_REF_IS_LOADING = (isLoading: any = false): ActionInterface => {
-  
-  return ({
+export const SET_REF_IS_LOADING = (isLoading: any = false): ActionInterface => ({
   type: "SET_REF_IS_LOADING",
   newState: isLoading
-})
-};
+});
 
 export const UPDATE_PAYLOAD = (payload: Payload = Get_HardCoded_Refs()): ActionInterface => ({
   type: "UPDATE_PAYLOAD",
@@ -89,9 +86,14 @@ export const DELETE_PREV_HISTORY = (history: State = {}): ActionInterface => ({
   newState: history
 });
 
-export const POPULATE_GRAPH = (graph: Graph = {nodes: [], edges: []}): ActionInterface => ({
-  type: 'POPULATE_GRAPH',
-  newState: graph
+export const POPULATE_GRAPH_NODES = (graphNodes: any[] = []): ActionInterface => ({
+  type: 'POPULATE_GRAPH_NODES',
+  newState: [ ...graphNodes ]
+});
+
+export const POPULATE_GRAPH_EDGES = (graphEdges: any[] = []): ActionInterface => ({
+  type: 'POPULATE_GRAPH_EDGES',
+  newState: [ ...graphEdges ]
 });
 
 export const actionsAndProps = [
@@ -110,7 +112,8 @@ export const actionsAndProps = [
   [SET_TOOLTIP_IS_ACTIVE, 'tooltipIsActive'],
   [UPDATE_HISTORY, 'history'],
   // [DELETE_PREV_HISTORY, 'history'],
-  [POPULATE_GRAPH, 'graph']
+  [POPULATE_GRAPH_NODES, 'graphNodes'],
+  [POPULATE_GRAPH_EDGES, 'graphEdges']
 ];
 
 export const mapProps4dispatch = (needActions: string[]) =>

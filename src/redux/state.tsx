@@ -1,10 +1,5 @@
 import { actionsAndProps } from "../redux/actions";
 
-export interface Graph {
-  nodes?: any[],
-  edges?: any[]
-}
-
 export interface Payload {
   data: {
     title: string;
@@ -31,7 +26,8 @@ export interface State {
   graphNodeIsActive?: boolean;
   tooltipIsActive?: boolean;
   history?: State[];
-  graph?: Graph;
+  graphNodes?: Array<any>;
+  graphEdges?: any[];
   [key: string]: any;
 }
 
@@ -50,7 +46,8 @@ export enum stateProps {
   graphNodeIsActive,
   tooltipIsActive,
   history,
-  graph
+  graphNodes,
+  graphEdges
 }
 
 export enum stateActions {
@@ -69,7 +66,8 @@ export enum stateActions {
   SET_TOOLTIP_IS_ACTIVE,
   UPDATE_HISTORY,
   DELETE_PREV_HISTORY,
-  POPULATE_GRAPH
+  POPULATE_GRAPH_NODES,
+  POPULATE_GRAPH_EDGES
 }
 
 export const mapProps4state = (needProps: string[]) => (
@@ -85,22 +83,20 @@ export const mapProps4state = (needProps: string[]) => (
 
 export const setStateWrapper = (componentProps: any) => (
   stateProps: any
-): Promise<State> => new Promise(resolve => {
-  const propsResolved: any = {...componentProps};
+): Promise<State> =>
+  new Promise(resolve => {
+    const propsResolved: any = { ...componentProps };
 
-  for (const stateProp in stateProps) {
-    for (const actAndProp of actionsAndProps) {
-      const [action, prop] = actAndProp as any;
-    
-      if (stateProp === prop) {
-        componentProps[action().type](stateProps[prop]);
-        propsResolved[prop] = stateProps[prop];
-        break;
+    for (const stateProp in stateProps) {
+      for (const actAndProp of actionsAndProps) {
+        const [action, prop] = actAndProp as any;
+
+        if (stateProp === prop && componentProps[action().type]) {
+          componentProps[action().type](stateProps[prop]);
+          propsResolved[prop] = stateProps[prop];
+          break;
+        }
       }
-      
     }
-  }
-  resolve(propsResolved);
-});
-
-
+    resolve(propsResolved);
+  });

@@ -154,7 +154,6 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 
   render() {
-    
     const toggleBarLoaderAttributes = {
             size: 8,
             color: 'white',
@@ -167,7 +166,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
       type: 'major',
       wrapperHeight: this.props.dropdownCurHeight! - this.tabLinksWrapperheight
     };
-    
+
     return (
       <div
         className={`widget ${
@@ -178,8 +177,8 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         <ToggleBarItems refs={DOM_refs}>
           <Loader attributes={toggleBarLoaderAttributes} />
         </ToggleBarItems>
-        <Dropdown>
-          <TabLinks />
+        <Dropdown refs={DOM_refs}>
+          <TabLinks refs={DOM_refs} />
           <Tabs refs={DOM_refs}>
             <Loader attributes={loaderAttributes} />
           </Tabs>
@@ -189,7 +188,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 }
 
-const stateProps = ['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graph', 'refIsLoading', 'errOccurred', 'errMsg'];
+const stateProps = ['refID', 'dropdownIsCollapsed', 'dropdownCurHeight', 'tooltipIsActive', 'history', 'payload', 'graphNodes', 'graphEdges', 'refIsLoading', 'errOccurred', 'errMsg'];
 
 const mapStateToProps = mapProps4state(stateProps);
 const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));

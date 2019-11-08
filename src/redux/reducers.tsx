@@ -83,7 +83,7 @@ const tooltipIsActive = (state = false, action: A) => {
 const history = (state: any = [{}], action: A) => {
   switch (action.type) {
     case 'UPDATE_HISTORY':
-      const copyHistory = state.history ?[ ...state.history ] : [{}]
+      const copyHistory = state.history ? [ ...state.history ] : [{}]
       copyHistory.push({ ...action.newState })
       return { history: copyHistory };
     case 'DELETE_PREV_HISTORY':
@@ -93,8 +93,14 @@ const history = (state: any = [{}], action: A) => {
   }
 };
 
-const graph = (state: any = { nodes: [], edges:[] }, action: A) => {
-  if ('POPULATE_GRAPH' === action.type)
+const graphNodes = (state: any = [], action: A) => {
+  if ('POPULATE_GRAPH_NODES' === action.type)
+    return action.newState;
+  return state;
+}
+
+const graphEdges = (state: any = [], action: A) => {
+  if ('POPULATE_GRAPH_EDGES' === action.type)
     return action.newState;
   return state;
 }
@@ -114,7 +120,8 @@ const reducers = combineReducers({
   graphNodeIsActive,
   tooltipIsActive,
   history,
-  graph
+  graphNodes,
+  graphEdges
 });
 
 export default reducers;
