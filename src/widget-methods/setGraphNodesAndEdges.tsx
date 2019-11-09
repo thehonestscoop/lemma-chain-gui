@@ -1,5 +1,5 @@
-import { setStateWrapper, Payload } from '../redux/state';
-import { cssProps } from '../Widget';
+import { setStateWrapper, Payload } from "../redux/state";
+import { cssProps } from "../Widget";
 
 /**
  * @param setGraphNodesAndEdges: gets and pushes graph nodes and edges to network for visualization
@@ -14,21 +14,21 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
   //making a copy of refs (parents) to avoid modifying actual parents
   const parents = _ref.refs.map((parent: any) => Object.assign({}, parent));
   const colors = {
-      self: {
-        bg: themeCSS.graphCurrentNodeBg,
-        bdr: themeCSS.graphCurrentNodeBorderColor
-      },
-      required: {
-        bg: themeCSS.graphParentNodesBg,
-        bdr: themeCSS.graphParentNodesBorderColor
-      },
-      recommended: { bg: "#20dcff", bdr: "#10bcf0" },
-      alien: { bg: "#c0c0c0", bdr: "#b0b0b0" },
-      other: {
-        bg: themeCSS.graphParentNodesBg,
-        bdr: themeCSS.graphParentNodesBorderColor
-      }
-    };
+    self: {
+      bg: themeCSS.graphCurrentNodeBg,
+      bdr: themeCSS.graphCurrentNodeBorderColor
+    },
+    required: {
+      bg: themeCSS.graphParentNodesBg,
+      bdr: themeCSS.graphParentNodesBorderColor
+    },
+    recommended: { bg: "#20dcff", bdr: "#10bcf0" },
+    alien: { bg: "#c0c0c0", bdr: "#b0b0b0" },
+    other: {
+      bg: themeCSS.graphParentNodesBg,
+      bdr: themeCSS.graphParentNodesBorderColor
+    }
+  };
 
   //returns object of node properties e.g. color, font, background, border etc.
   const nodeProps = (_ref: Payload): object => {
@@ -157,10 +157,10 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
     );
     //extract hashID part of refID
     props.graphNodes[0].id = ref.id.replace(/.*\/(.*)/, "$1");
-    setState({ 
+    setState({
       graphNodes: props.graphNodes,
       graphEdges: props.graphEdges
-    })
+    });
     pushNodesAndEdges();
   } else if (refHasParents) pushNodesAndEdges();
 };

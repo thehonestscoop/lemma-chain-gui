@@ -1,19 +1,19 @@
 import { setStateWrapper } from "../redux/state";
 import visualizeGraph from "./visualizeGraph";
 import { store } from '../index';
-
 /**
  * @param goBackInTime: history navigation (time traveller) function; handles going back one depth on click of 'back button'
  */
 const goBackInTime = (props: any): any => {
+  props = { ...store.getState() };
   const setState = setStateWrapper(props);
   let toPast: object;
-  let history =  [ ...store.getState().history ];
-console.log('what is history', history);
-  let pastIndex = history.length - 2;
+  let history =  [...store.getState().history];
+  let pastIndex = history.length - 1;
 
   if (pastIndex >= 0 && history[pastIndex]) {
     toPast = history[pastIndex];
+console.log('toPast...', toPast);
     setState({ ...toPast });
   }
   else {

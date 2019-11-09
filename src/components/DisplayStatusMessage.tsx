@@ -2,13 +2,16 @@ import React, { CSSProperties } from "react";
 import { connect } from "react-redux";
 
 import { mapProps4state } from "../redux/state";
-import { mapProps4dispatch, getCorrespondingDispatchNames } from "../redux/actions";
+import {
+  mapProps4dispatch,
+  getCorrespondingDispatchNames
+} from "../redux/actions";
 
 /**
  * @param DisplayStatusMessage: Displays error message or 'book has no-ref' message depending on context.
  */
 function DisplayStatusMessage(props: any) {
-  let messageWrapperStyle: CSSProperties = {
+  const messageWrapperStyle: CSSProperties = {
       padding: "20px 30px",
       display: "flex",
       textAlign: "center",
@@ -19,21 +22,21 @@ function DisplayStatusMessage(props: any) {
       minHeight: 200,
       opacity: props.refIsLoading ? 0 : 1,
       transition: "0.3s"
-    },
-    errImgStyle: CSSProperties = {
+    };
+  const errImgStyle: CSSProperties = {
       opacity: 0.5,
       borderRadius: "50%",
       width: 80,
       height: "auto",
       marginBottom: 10
-    },
-    suggestMsg: React.ReactFragment = (
+    };
+  const suggestMsg: React.ReactFragment = (
       <>
         <b>Suggest:</b> Must be a network issue. Check internet connection then
         try again.
       </>
-    ),
-    errMsg: React.ReactFragment = (
+    )
+  const errMsg: React.ReactFragment = (
       <>
         Sorry. Could not load <b>{props.ref_type}</b> references for this book.
         <br />
@@ -42,15 +45,15 @@ function DisplayStatusMessage(props: any) {
           ? suggestMsg
           : "An unexpected error occurred. Please, try again."}
       </>
-    ),
-    nothingToShowMessage: React.ReactFragment = (
+    );
+  const nothingToShowMessage: React.ReactFragment = (
       <>
         Nothing to show.
         <br />
         Book has no <b>{props.ref_type}</b> references.
       </>
-    ),
-    graphStatusMessage: React.ReactFragment = (
+    )
+  const graphStatusMessage: React.ReactFragment = (
       <>
         Sorry. Can't visualize <b>graph</b>.<br />
         <b>{props.errMsg ? "" : "Reason: "}</b>
@@ -75,7 +78,9 @@ function DisplayStatusMessage(props: any) {
 
 const stateProps = ["refIsLoading", "errMsg"];
 const mapStateToProps = mapProps4state(stateProps);
-const mapDispatchToProps = mapProps4dispatch(getCorrespondingDispatchNames(stateProps));
+const mapDispatchToProps = mapProps4dispatch(
+  getCorrespondingDispatchNames(stateProps)
+);
 
 export default connect(
   mapStateToProps,

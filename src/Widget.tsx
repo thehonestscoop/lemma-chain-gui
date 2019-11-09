@@ -50,8 +50,9 @@ class Widget extends React.Component<StateInterface, StateInterface> {
 
   async componentDidMount() {
     // console.log('widget history: ', this.props.history);
-    const setState = setStateWrapper(Object.assign({}, this.props));
-    const history = [ Object.assign({}, store.getState()) ];
+    const props = Object.assign({}, this.props);
+    const setState = setStateWrapper(props);
+    // const history: any = [];
 
     //check what device user is running
     if (
@@ -66,7 +67,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
     setState({ refIsLoading: true });
 
     try {
-      await fetch(`http://${this.serverHostURL}/${this.props.refID}`)
+      await fetch(`http://${this.serverHostURL}/${props.refID}`)
         .then((response: Response) => response.json())
         .then((data: PayloadInterface) => {
           //throw Error (i.e. do not proceed to try populating UI) if server returns an error [message]
@@ -75,15 +76,19 @@ class Widget extends React.Component<StateInterface, StateInterface> {
             setState({ payload: data });
             //using another setState method here to update dropdown height to activeTab-height after it has been populated to avoid setting a height of 0 assuming it's done in the previous setState method
             setState({
+              // payload: data,
               errOccurred: false,
               refIsLoading: false,
-              dropdownCurHeight: !this.props.dropdownIsCollapsed
+              dropdownCurHeight: !props.dropdownIsCollapsed
                 ? activeTab
-                : this.props.dropdownCurHeight
+                : props.dropdownCurHeight
+            }).then(props => {
+              visualizeGraph(props);
+              console.log('try: widget searching for graphNodes:', props.graphNodes);
             });
           }
-          //delay till state payload is set before visualizing to avoid errors
-          setTimeout(() => visualizeGraph(this.props), 200);
+          // //delay till state payload is set before visualizing to avoid errors
+          // setTimeout(() => , 200);
         });
     } catch (e) {
       //NOTE: This block of code must be re-edited for production. It was modified just for testing purposes
@@ -108,18 +113,17 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         // errOccurred: true,
         errMsg: `${grammifiedErrMsg}`,
         refIsLoading: false
-      });
-      //HACK: The following setTimeout function is for a case where user toggles dropdown while Lemma Chain is still loading or fetching data and has not yet resolved
-      //PS: Delay till after above state props is set in order to correctly set dropdown height
-      setTimeout(() => {
+      }).then(props => {
         setState({
-          dropdownCurHeight: !this.props.dropdownIsCollapsed
+          dropdownCurHeight: !props.dropdownIsCollapsed
             ? activeTab
-            : this.props.dropdownCurHeight
+            : props.dropdownCurHeight
         });
+
         //TO-DO: delete this line in production
-        visualizeGraph(this.props);
-      }, 200);
+        visualizeGraph(props);
+        
+      });
     } finally {
       //hide clipboard tool-tip if anywhere else on page/document is clicked
       document.body.onclick = (e: any) => {
@@ -145,16 +149,22 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           DOM_refs.recommendedTab.current.style.maxHeight = maxHeight;
 
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
-          history[0].dropdownCurHeight = DOM_refs.activeTab.current;
-          history[0].dropdownIsCollapsed = false;
-          setState({ history: [ ...history ] });
+          // console.log('finally: widget searching for graphNodes:', props.graphNodes);
+          // history[0] = Object.assign({}, store.getState());
+          // setState({
+          //   ...history[0]
+          // }).then(_ => {
+          //   history[0].dropdownCurHeight = DOM_refs.activeTab.current.offsetHeight + 2;
+          //   history[0].dropdownIsCollapsed = false;
+          //   history[0].historyExists = true;
+          //   setState({ history: [...history] });
+          //   console.log('store after set history: ', store.getState());
+          // });
+          
+          
         }
       };
       awaitFontLoad();
-
-      //update history
-      history.push(Object.assign({}, store.getState()));
-      setState({ history: [ ...history ] });
     }
   }
 

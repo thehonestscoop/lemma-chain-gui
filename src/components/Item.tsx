@@ -21,20 +21,21 @@ const Item = React.forwardRef((props: any, unusedRef: any) => {
       <img className="extern-link-icon" src="link.png" alt="link" />
     </a>
   );
-  
+
   return (
     <div
       className="item-wrapper"
       data-data={props.itemPayload.data}
       data-id={props.itemPayload.id}
       onClick={(e: any) => {
-        
-        let target = /extern-link/.test(e.target.className) ? e.target : e.currentTarget;
-        
+        let target = /extern-link/.test(e.target.className)
+          ? e.target
+          : e.currentTarget;
+
         // console.log('target:', target)
-        
+
         setState({ payload: { ...props.itemPayload } }).then(props => {
-          handleReferenceClick(target, props)
+          handleReferenceClick(target, props);
         });
       }}
       ref={refItemWrapper}
