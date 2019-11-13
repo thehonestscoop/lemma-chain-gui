@@ -1,11 +1,11 @@
-import { setStateWrapper, Payload } from "../redux/state";
+import { initSetStateForProps, Payload } from "../redux/state";
 import { cssProps } from "../Widget";
 
 /**
  * @param setGraphNodesAndEdges: gets and pushes graph nodes and edges to network for visualization
  */
 const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
-  const setState = setStateWrapper(props);
+  const setState = initSetStateForProps(props);
   // const graphNodes: any = [ ...props.graphNodes ];
   // const graphEdges: any = [ ...props.graphEdges ];
   const themeCSS = cssProps;

@@ -2,7 +2,7 @@ import React from "react";
 // import { Props } from './Dropdown';
 import { getCSSProps } from "../ThemeCSS";
 import widgetconfig from "../widgetconfig.json";
-import { mapProps4state, setStateWrapper } from "../redux/state";
+import { mapProps4state, initSetStateForProps } from "../redux/state";
 import { connect } from "react-redux";
 import goBackInTime from "../widget-methods/goBackInTime";
 import handleTabToggle from "../widget-methods/handleTabToggle";
@@ -12,7 +12,7 @@ import {
 } from "../redux/actions";
 
 const TabLinks: any = React.forwardRef((props: any, unUsedRef: any) => {
-  const setState = setStateWrapper(props);
+  const setState = initSetStateForProps(props);
 
   return (
     <div
@@ -93,7 +93,17 @@ const stateProps = [
   "historyExists",
   "activeTabName",
   "dropdownCurHeight",
-  "activeTabLinkName"
+  "activeTabLinkName",
+  'refID',
+  'refIsLoading',
+  'payload',
+  'errOccurred',
+  'errMsg',
+  'graphNodeIsHovered',
+  'graphNodeIsActive',
+  'tooltipIsActive',
+  'graphNodes',
+  'graphEdges'
 ];
 
 const mapStateToProps = mapProps4state(stateProps);

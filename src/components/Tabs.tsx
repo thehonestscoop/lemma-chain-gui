@@ -67,6 +67,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
                   key={key}
                   refItemWrapper={refs.refItemWrapper}
                   itemPayload={ref}
+                  history={props.history}
                 />
               ) : null
             )
@@ -95,6 +96,7 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
                   key={key}
                   refItemWrapper={refs.refItemWrapper}
                   itemPayload={ref}
+                  history={props.history}
                 />
               ) : null
             )

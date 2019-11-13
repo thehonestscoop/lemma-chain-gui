@@ -25,7 +25,7 @@ export interface State {
   graphNodeIsHovered?: boolean;
   graphNodeIsActive?: boolean;
   tooltipIsActive?: boolean;
-  history?: State[];
+  // history?: State[];
   graphNodes?: Array<any>;
   graphEdges?: any[];
   [key: string]: any;
@@ -45,7 +45,7 @@ export enum stateProps {
   graphNodeIsHovered,
   graphNodeIsActive,
   tooltipIsActive,
-  history,
+  // history,
   graphNodes,
   graphEdges
 }
@@ -64,11 +64,11 @@ export enum stateActions {
   SET_GRAPH_NODE_IS_HOVERED,
   SET_GRAPH_NODE_IS_ACTIVE,
   SET_TOOLTIP_IS_ACTIVE,
-  UPDATE_HISTORY,
+  // UPDATE_HISTORY,
   POPULATE_GRAPH_NODES,
   POPULATE_GRAPH_EDGES
 }
-
+//TODO - Modify setState function to...
 export const mapProps4state = (needProps: string[]) => (
   state: State,
   ownProps?: any
@@ -80,7 +80,7 @@ export const mapProps4state = (needProps: string[]) => (
   return props;
 };
 
-export const setStateWrapper = (componentProps: any) => (
+export const initSetStateForProps = (componentProps: any) => (
   stateProps: any
 ): Promise<State> =>
   new Promise(resolve => {
@@ -99,3 +99,31 @@ export const setStateWrapper = (componentProps: any) => (
     }
     resolve(propsResolved);
   });
+
+  // export const initSetStateForProps = (componentProps: any) => (
+  //   stateProps: any
+  // ): Promise<State> =>
+  //   new Promise(resolve => {
+  //     const propsResolved: any = { ...componentProps };
+  
+  //     for (const stateProp in stateProps) {
+  //       for (const actAndProp of actionsAndProps) {
+  //         const [action, prop] = actAndProp as any;
+  
+  //         if (stateProp === prop && componentProps[action().type]) {
+  //           componentProps[action().type](stateProps[prop]);
+  //           propsResolved[prop] = stateProps[prop];
+  //           break;
+  //         }
+  //       }
+  //     }
+  //     resolve(propsResolved);
+  //   });
+
+export const statesAreEqual = (prev: any, current: any): boolean => {
+  if (current.constructor !== Object) return prev === current;
+  else if (current.constructor === Object)
+    for (const prop in current)
+      if (!prev || (prop in prev && prev[prop] !== current[prop])) return false;
+  return true;
+};

@@ -1,5 +1,5 @@
 import React from "react";
-import { mapProps4state, setStateWrapper } from "../redux/state";
+import { mapProps4state, initSetStateForProps } from "../redux/state";
 import { connect } from "react-redux";
 import handleReferenceClick from "../widget-methods/handleReferenceClick";
 import {
@@ -9,7 +9,7 @@ import {
 
 const Item = React.forwardRef((props: any, unusedRef: any) => {
   // console.log('Items checking for refIsLoading: ', props.refIsLoading);
-  const setState = setStateWrapper(props);
+  const setState = initSetStateForProps(props);
   const refItemWrapper = props.refItemWrapper;
   const appendURL = (
     <a
@@ -31,12 +31,7 @@ const Item = React.forwardRef((props: any, unusedRef: any) => {
         let target = /extern-link/.test(e.target.className)
           ? e.target
           : e.currentTarget;
-
-        // console.log('target:', target)
-
-        setState({ payload: { ...props.itemPayload } }).then(props => {
           handleReferenceClick(target, props);
-        });
       }}
       ref={refItemWrapper}
     >

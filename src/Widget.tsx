@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import Dropdown from "./components/Dropdown";
 import Loader from "./components/Loader";
-import { setTimeout } from "timers";
 import Get_HardCoded_Refs from "./JSON_MockUp_Sample";
 import { getCSSProps } from "./ThemeCSS";
 import widgetconfig from "./widgetconfig.json";
@@ -12,8 +11,10 @@ import Tabs from "./components/Tabs";
 import {
   State as StateInterface,
   Payload as PayloadInterface,
-  setStateWrapper,
-  mapProps4state
+  initSetStateForProps,
+  mapProps4state,
+  State,
+  statesAreEqual
 } from "./redux/state";
 import visualizeGraph from "./widget-methods/visualizeGraph";
 import {
@@ -37,6 +38,12 @@ export const DOM_refs: any = {
 
 export const cssProps = getCSSProps();
 
+export const history: State[] = [];
+
+export const HistoryContext = React.createContext<State>(history);
+
+// export const setState: any = init
+
 class Widget extends React.Component<StateInterface, StateInterface> {
   tabLinksWrapperheight = 48;
 
@@ -47,12 +54,33 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   serverHostURL: string = /localhost/.test(window.location.href)
     ? "localhost:1323"
     : widgetconfig.lemmaChainServerHost;
+  
+  // history: State[] = [];
+
+  componentDidUpdate() {
+    const prevState = history[history.length - 1];
+
+    if (prevState) {
+      const currentState = store.getState();
+
+      // if (!statesAreEqual(prevState.refID, currentState.refID))
+      // {
+      //   currentState.refIsLoading = false;
+      //   history.push(currentState);
+      //   console.log('after component update: ', this.props)
+      // }
+      // else {
+      //   // console.log('states are equal.......');
+      //   // console.log(history[0], store.getState());
+      // }
+      console.log('widget\'s history', history)
+    }
+      
+  }
 
   async componentDidMount() {
-    // console.log('widget history: ', this.props.history);
     const props = Object.assign({}, this.props);
-    const setState = setStateWrapper(props);
-    // const history: any = [];
+    let setState = initSetStateForProps(props);
 
     //check what device user is running
     if (
@@ -73,19 +101,21 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           //throw Error (i.e. do not proceed to try populating UI) if server returns an error [message]
           if (Object.keys(data).includes("error")) throw new Error(data.error);
           else {
-            setState({ payload: data });
-            //using another setState method here to update dropdown height to activeTab-height after it has been populated to avoid setting a height of 0 assuming it's done in the previous setState method
-            setState({
-              // payload: data,
-              errOccurred: false,
-              refIsLoading: false,
-              dropdownCurHeight: !props.dropdownIsCollapsed
-                ? activeTab
-                : props.dropdownCurHeight
-            }).then(props => {
-              visualizeGraph(props);
-              console.log('try: widget searching for graphNodes:', props.graphNodes);
+            setState({ payload: data }).then(props => {
+              setState = initSetStateForProps(props);
+
+              setState({
+                errOccurred: false,
+                refIsLoading: false,
+                dropdownCurHeight: !props.dropdownIsCollapsed
+                  ? activeTab
+                  : props.dropdownCurHeight
+              }).then(props => {
+                visualizeGraph(props);
+              });
             });
+            //using another setState method here to update dropdown height to activeTab-height after it has been populated to avoid setting a height of 0 assuming it's done in the previous setState method
+            
           }
           // //delay till state payload is set before visualizing to avoid errors
           // setTimeout(() => , 200);
@@ -114,6 +144,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         errMsg: `${grammifiedErrMsg}`,
         refIsLoading: false
       }).then(props => {
+        setState = initSetStateForProps(props);
         setState({
           dropdownCurHeight: !props.dropdownIsCollapsed
             ? activeTab
@@ -150,18 +181,16 @@ class Widget extends React.Component<StateInterface, StateInterface> {
 
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
           // console.log('finally: widget searching for graphNodes:', props.graphNodes);
-          // history[0] = Object.assign({}, store.getState());
+          history[0] = Object.assign({}, store.getState());
           // setState({
           //   ...history[0]
           // }).then(_ => {
-          //   history[0].dropdownCurHeight = DOM_refs.activeTab.current.offsetHeight + 2;
-          //   history[0].dropdownIsCollapsed = false;
-          //   history[0].historyExists = true;
+          history[0].dropdownCurHeight = DOM_refs.activeTab.current.offsetHeight + 2;
+          history[0].dropdownIsCollapsed = false;
+          history[0].historyExists = false;
           //   setState({ history: [...history] });
-          //   console.log('store after set history: ', store.getState());
+            console.log('store after set history: ', history[0]);
           // });
-          
-          
         }
       };
       awaitFontLoad();
@@ -169,11 +198,15 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 
   render() {
+    
+      
+    // console.log('get state in the render method: ',store.getState())
     const toggleBarLoaderAttributes = {
       size: 8,
       color: "white",
       type: "minor"
     };
+  // console.log('TESTING PROPS IN WIDGET!: ', this.props)
     const loaderAttributes = {
       size: 12,
       color: getCSSProps().themeBg,
@@ -183,7 +216,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
       type: "major",
       wrapperHeight: this.props.dropdownCurHeight! - this.tabLinksWrapperheight
     };
-
+    
     return (
       <div
         className={`widget ${
@@ -192,15 +225,17 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         style={{ maxWidth: widgetconfig.widgetMaxWidth }}
         ref={this.widget}
       >
-        <ToggleBarItems refs={DOM_refs}>
-          <Loader attributes={toggleBarLoaderAttributes} />
-        </ToggleBarItems>
-        <Dropdown refs={DOM_refs}>
-          <TabLinks refs={DOM_refs} />
-          <Tabs refs={DOM_refs}>
-            <Loader attributes={loaderAttributes} />
-          </Tabs>
-        </Dropdown>
+        {/* <HistoryContext.Provider value={history}> */}
+          <ToggleBarItems refs={DOM_refs}>
+            <Loader attributes={toggleBarLoaderAttributes} />
+          </ToggleBarItems>
+          <Dropdown refs={DOM_refs}>
+            <TabLinks refs={DOM_refs} history={history} />
+            <Tabs refs={DOM_refs} history={history}>
+              <Loader attributes={loaderAttributes} />
+            </Tabs>
+          </Dropdown>
+        {/* </HistoryContext.Provider> */}
       </div>
     );
   }
@@ -211,7 +246,7 @@ const stateProps = [
   "dropdownIsCollapsed",
   "dropdownCurHeight",
   "tooltipIsActive",
-  "history",
+  // "history",
   "payload",
   "graphNodes",
   "graphEdges",

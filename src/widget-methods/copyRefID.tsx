@@ -1,9 +1,9 @@
 import { DOM_refs } from "../Widget";
-import { setStateWrapper } from "../redux/state";
+import { initSetStateForProps } from "../redux/state";
 
 const copyRefID = (e: React.MouseEvent<HTMLButtonElement>, props: any) => {
   const tooltip = e.currentTarget;
-  const setState = setStateWrapper(props);
+  const setState = initSetStateForProps(props);
 
   DOM_refs.refIDInputEl.current.select();
   document.execCommand("copy");

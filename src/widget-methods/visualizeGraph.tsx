@@ -1,4 +1,4 @@
-import { setStateWrapper } from "../redux/state";
+import { initSetStateForProps } from "../redux/state";
 import { DOM_refs } from "../Widget";
 import setGraphNodesAndEdges from "./setGraphNodesAndEdges";
 import vis, { Network, Options } from "vis";
@@ -7,10 +7,11 @@ import vis, { Network, Options } from "vis";
  * @param visualizeGraph: renders graph to DOM; returns void
  */
 const visualizeGraph = (props: any): void => {
-  const setState = setStateWrapper(props);
+  let setState = initSetStateForProps(props);
 
   setState({ graphNodes: [], graphEdges: [] }).then(propsResolved => {
     const props = propsResolved as any;
+    setState = initSetStateForProps(props);
 
     // console.log("graphNodes before...........", props.payload);
     // console.log("this is payload we are looking for: ", props.payload, props.history);

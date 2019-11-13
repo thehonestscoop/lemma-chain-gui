@@ -18,7 +18,9 @@ const dropdownCurHeight = (state: any = 0, action: A) => {
   function resizeDropdownHeightTo(activeTab: any, constHeight = 48) {
     //i.e. if the argument, activeTab, is an element and not a number (0)...
     //PS: Add 2px for border-bottom extension
-    return activeTab !== 0 ? activeTab.offsetHeight + constHeight + 2 : 0;
+    if (typeof activeTab === 'number')
+      return activeTab;
+    return activeTab.offsetHeight + constHeight + 2;
   }
 };
 
@@ -77,21 +79,21 @@ const tooltipIsActive = (state = false, action: A) => {
   return state;
 };
 
-const history = (state: any = [], action: A) => {
-  // switch (action.type) {
-  //   case :
-  //     const copyHistory = state.history ? [ ...state.history ] : [{}]
-  //     copyHistory.push({ ...action.newState })
-  //     return { history: copyHistory };
-  //   case 'DELETE_PREV_HISTORY':
-  //     let copyState = { ...state };
-  //     return copyState.history.pop();
-  //   default: return state;
+// const history = (state: any = [], action: A) => {
+//   // switch (action.type) {
+//   //   case :
+//   //     const copyHistory = state.history ? [ ...state.history ] : [{}]
+//   //     copyHistory.push({ ...action.newState })
+//   //     return { history: copyHistory };
+//   //   case 'DELETE_PREV_HISTORY':
+//   //     let copyState = { ...state };
+//   //     return copyState.history.pop();
+//   //   default: return state;
 
-  // }
-  if ("UPDATE_HISTORY" === action.type) return action.newState;
-  return state;
-};
+//   // }
+//   if ("UPDATE_HISTORY" === action.type) return action.newState;
+//   return state;
+// };
 
 const graphNodes = (state: any = [], action: A) => {
   if ("POPULATE_GRAPH_NODES" === action.type) return action.newState;
@@ -117,7 +119,7 @@ const reducers = combineReducers({
   graphNodeIsHovered,
   graphNodeIsActive,
   tooltipIsActive,
-  history,
+  // history,
   graphNodes,
   graphEdges
 });

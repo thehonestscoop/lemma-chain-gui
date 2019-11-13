@@ -10,18 +10,16 @@ import {
 
 const Dropdown: any = React.forwardRef<any>((props: any, unusedRef: any) => {
   return (
-    <>
-      <section
-        className="dropdown"
-        style={{
-          height: props.dropdownCurHeight,
-          borderBottomWidth: props.dropdownIsCollapsed ? 0 : 2
-        }}
-        ref={props.refs.dropdown}
-      >
-        {props.children}
-      </section>
-    </>
+    <section
+      className="dropdown"
+      style={{
+        height: props.dropdownCurHeight,
+        borderBottomWidth: props.dropdownIsCollapsed ? 0 : 2
+      }}
+      ref={props.refs.dropdown}
+    >
+      {props.children}
+    </section>
   );
 });
 
