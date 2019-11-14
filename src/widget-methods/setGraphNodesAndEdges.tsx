@@ -6,8 +6,6 @@ import { cssProps } from "../Widget";
  */
 const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
   const setState = initSetStateForProps(props);
-  // const graphNodes: any = [ ...props.graphNodes ];
-  // const graphEdges: any = [ ...props.graphEdges ];
   const themeCSS = cssProps;
   const ref: any = Object.assign({}, _ref);
   const refHasParents = _ref.refs.length > 0 ? true : false;
@@ -64,7 +62,6 @@ const setGraphNodesAndEdges = (_ref: Payload, props: any): void => {
   };
 
   const pushNodesAndEdges = (): void => {
-    // let parent: PayloadInterface;
     for (let parent of parents) {
       let _nodeProps: any = nodeProps(parent),
         nodeExists: boolean = false;

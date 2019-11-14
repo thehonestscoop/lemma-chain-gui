@@ -6,7 +6,6 @@ import {
   mapProps4dispatch,
   getCorrespondingDispatchNames
 } from "../redux/actions";
-// import { DropdownContext } from '../context';
 
 const Dropdown: any = React.forwardRef<any>((props: any, unusedRef: any) => {
   return (

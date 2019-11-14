@@ -100,11 +100,6 @@ export const SET_TOOLTIP_IS_ACTIVE = (
   newState: isActive
 });
 
-// export const UPDATE_HISTORY = (history: State = []): ActionInterface => ({
-//   type: "UPDATE_HISTORY",
-//   newState: history
-// });
-
 export const POPULATE_GRAPH_NODES = (
   graphNodes: any[] = []
 ): ActionInterface => ({
@@ -133,7 +128,6 @@ export const actionsAndProps = [
   [SET_GRAPH_NODE_IS_HOVERED, "graphNodeIsHovered"],
   [SET_GRAPH_NODE_IS_ACTIVE, "graphNodeIsActive"],
   [SET_TOOLTIP_IS_ACTIVE, "tooltipIsActive"],
-  // [UPDATE_HISTORY, "history"],
   [POPULATE_GRAPH_NODES, "graphNodes"],
   [POPULATE_GRAPH_EDGES, "graphEdges"]
 ];

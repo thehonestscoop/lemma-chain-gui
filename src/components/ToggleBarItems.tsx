@@ -14,7 +14,7 @@ const lcLogoImgSrc =
 const ToggleBarItems: any = React.forwardRef<any>(
   (props: any, unusedRefs: any) => {
     const refs = props.refs;
-    // console.log('checking ref is loading:', props.refIsLoading);
+    
     return (
       <>
         <button

@@ -1,5 +1,5 @@
 import React from "react";
-import { mapProps4state, initSetStateForProps } from "../redux/state";
+import { mapProps4state } from "../redux/state";
 import { connect } from "react-redux";
 import handleReferenceClick from "../widget-methods/handleReferenceClick";
 import {
@@ -8,8 +8,6 @@ import {
 } from "../redux/actions";
 
 const Item = React.forwardRef((props: any, unusedRef: any) => {
-  // console.log('Items checking for refIsLoading: ', props.refIsLoading);
-  const setState = initSetStateForProps(props);
   const refItemWrapper = props.refItemWrapper;
   const appendURL = (
     <a
@@ -51,11 +49,6 @@ const Item = React.forwardRef((props: any, unusedRef: any) => {
     </div>
   );
 });
-
-// const { allActionNames, allProps } = allActionNamesAndProps;
-
-// const mapStateToProps = mapProps4state(allProps);
-// const mapDispatchToProps = mapProps4dispatch(allActionNames)
 
 const stateProps = [
   "payload",

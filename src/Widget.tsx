@@ -13,8 +13,7 @@ import {
   Payload as PayloadInterface,
   initSetStateForProps,
   mapProps4state,
-  State,
-  statesAreEqual
+  State
 } from "./redux/state";
 import visualizeGraph from "./widget-methods/visualizeGraph";
 import {
@@ -42,8 +41,6 @@ export const history: State[] = [];
 
 export const HistoryContext = React.createContext<State>(history);
 
-// export const setState: any = init
-
 class Widget extends React.Component<StateInterface, StateInterface> {
   tabLinksWrapperheight = 48;
 
@@ -54,29 +51,6 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   serverHostURL: string = /localhost/.test(window.location.href)
     ? "localhost:1323"
     : widgetconfig.lemmaChainServerHost;
-  
-  // history: State[] = [];
-
-  componentDidUpdate() {
-    const prevState = history[history.length - 1];
-
-    if (prevState) {
-      const currentState = store.getState();
-
-      // if (!statesAreEqual(prevState.refID, currentState.refID))
-      // {
-      //   currentState.refIsLoading = false;
-      //   history.push(currentState);
-      //   console.log('after component update: ', this.props)
-      // }
-      // else {
-      //   // console.log('states are equal.......');
-      //   // console.log(history[0], store.getState());
-      // }
-      console.log('widget\'s history', history)
-    }
-      
-  }
 
   async componentDidMount() {
     const props = Object.assign({}, this.props);
@@ -114,11 +88,7 @@ class Widget extends React.Component<StateInterface, StateInterface> {
                 visualizeGraph(props);
               });
             });
-            //using another setState method here to update dropdown height to activeTab-height after it has been populated to avoid setting a height of 0 assuming it's done in the previous setState method
-            
           }
-          // //delay till state payload is set before visualizing to avoid errors
-          // setTimeout(() => , 200);
         });
     } catch (e) {
       //NOTE: This block of code must be re-edited for production. It was modified just for testing purposes
@@ -153,7 +123,6 @@ class Widget extends React.Component<StateInterface, StateInterface> {
 
         //TO-DO: delete this line in production
         visualizeGraph(props);
-        
       });
     } finally {
       //hide clipboard tool-tip if anywhere else on page/document is clicked
@@ -180,17 +149,10 @@ class Widget extends React.Component<StateInterface, StateInterface> {
           DOM_refs.recommendedTab.current.style.maxHeight = maxHeight;
 
           //HACK: unset history initial (first state) dropdown height from 0 to current activeTab height to prevent dropdown from resizing to 0 on click of back button assuming history index is at 0 (first state).
-          // console.log('finally: widget searching for graphNodes:', props.graphNodes);
           history[0] = Object.assign({}, store.getState());
-          // setState({
-          //   ...history[0]
-          // }).then(_ => {
-          history[0].dropdownCurHeight = DOM_refs.activeTab.current.offsetHeight + 2;
+          history[0].dropdownCurHeight = DOM_refs.activeTab.current.offsetHeight + this.tabLinksWrapperheight + 2;
           history[0].dropdownIsCollapsed = false;
           history[0].historyExists = false;
-          //   setState({ history: [...history] });
-            console.log('store after set history: ', history[0]);
-          // });
         }
       };
       awaitFontLoad();
@@ -198,15 +160,11 @@ class Widget extends React.Component<StateInterface, StateInterface> {
   }
 
   render() {
-    
-      
-    // console.log('get state in the render method: ',store.getState())
     const toggleBarLoaderAttributes = {
       size: 8,
       color: "white",
       type: "minor"
     };
-  // console.log('TESTING PROPS IN WIDGET!: ', this.props)
     const loaderAttributes = {
       size: 12,
       color: getCSSProps().themeBg,
@@ -225,17 +183,15 @@ class Widget extends React.Component<StateInterface, StateInterface> {
         style={{ maxWidth: widgetconfig.widgetMaxWidth }}
         ref={this.widget}
       >
-        {/* <HistoryContext.Provider value={history}> */}
-          <ToggleBarItems refs={DOM_refs}>
-            <Loader attributes={toggleBarLoaderAttributes} />
-          </ToggleBarItems>
-          <Dropdown refs={DOM_refs}>
-            <TabLinks refs={DOM_refs} history={history} />
-            <Tabs refs={DOM_refs} history={history}>
-              <Loader attributes={loaderAttributes} />
-            </Tabs>
-          </Dropdown>
-        {/* </HistoryContext.Provider> */}
+        <ToggleBarItems refs={DOM_refs}>
+          <Loader attributes={toggleBarLoaderAttributes} />
+        </ToggleBarItems>
+        <Dropdown refs={DOM_refs}>
+          <TabLinks refs={DOM_refs} history={history} />
+          <Tabs refs={DOM_refs} history={history}>
+            <Loader attributes={loaderAttributes} />
+          </Tabs>
+        </Dropdown>
       </div>
     );
   }
@@ -246,7 +202,6 @@ const stateProps = [
   "dropdownIsCollapsed",
   "dropdownCurHeight",
   "tooltipIsActive",
-  // "history",
   "payload",
   "graphNodes",
   "graphEdges",

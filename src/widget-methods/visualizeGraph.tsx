@@ -13,12 +13,7 @@ const visualizeGraph = (props: any): void => {
     const props = propsResolved as any;
     setState = initSetStateForProps(props);
 
-    // console.log("graphNodes before...........", props.payload);
-    // console.log("this is payload we are looking for: ", props.payload, props.history);
     setGraphNodesAndEdges(props.payload, props);
-    
-    console.log("visualizeGraph checking fro graphNodes...........", props.graphNodes);
-    // console.log("graphNodes after...........", props.graphNodes);
     //if no nodes exist (which implies no parent(s)), do not proceed to visualize graph to avoid errors
     if (props.graphNodes.length < 1) return;
 

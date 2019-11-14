@@ -1,6 +1,5 @@
 import React from "react";
 import Item from "./Item";
-// import Loader from './Loader';
 import DisplayStatusMessage from "./DisplayStatusMessage";
 import { connect } from "react-redux";
 import { mapProps4state } from "../redux/state";
@@ -8,7 +7,6 @@ import {
   mapProps4dispatch,
   getCorrespondingDispatchNames
 } from "../redux/actions";
-// import { getCSSProps } from '../ThemeCSS';
 
 const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
   const refs = props.refs;
@@ -20,7 +18,6 @@ const Tabs: any = React.forwardRef<any>((props: any, unUsedRef: any) => {
   );
   const ifCanVisualizeGraph: boolean =
     (requiredRefExists || recommendedRefExists) && !props.errOccurred;
-  // console.log('these are the...', refs)
   const renderGraph: React.ReactElement = (
     <div className="tab-items-wrapper graph-wrapper">
       <div id="graph" ref={refs.graph}></div>
