@@ -12,7 +12,7 @@ const goBackInTime = (props: any): any => {
 
   if (pastIndex >= 0 && history[pastIndex]) {
     toPast = history[pastIndex];
-    setState(toPast).then(props => {
+    setState({...toPast}).then(props => {
       //remove/delete past's future having travelled back in time
       history.pop();
       visualizeGraph(props);

@@ -1,4 +1,4 @@
-import { actionsAndProps } from "../redux/actions";
+import { propsAndActions } from "../redux/actions";
 
 export interface Payload {
   data: {
@@ -48,24 +48,6 @@ export enum stateProps {
   graphEdges
 }
 
-export enum stateActions {
-  SET_DROPDOWN_IS_COLLAPSED,
-  RESIZE_DROPDOWN_HEIGHT,
-  UPDATE_REF_ID,
-  UPDATE_ACTIVE_TAB_NAME,
-  UPDATE_ACTIVE_TABLINK_NAME,
-  SET_HISTORY_EXISTS,
-  SET_REF_IS_LOADING,
-  UPDATE_PAYLOAD,
-  SET_ERROR_OCCURRED,
-  GET_ERR_MSG,
-  SET_GRAPH_NODE_IS_HOVERED,
-  SET_GRAPH_NODE_IS_ACTIVE,
-  SET_TOOLTIP_IS_ACTIVE,
-  POPULATE_GRAPH_NODES,
-  POPULATE_GRAPH_EDGES
-}
-
 export const mapProps4state = (needProps: string[]) => (
   state: State,
   ownProps?: any
@@ -73,10 +55,9 @@ export const mapProps4state = (needProps: string[]) => (
   const props: State = {};
 
   for (const prop of needProps) props[prop] = state[prop];
-
+  
   return props;
 };
-
 
 export const initSetStateForProps = (componentProps: State) => (
   stateProps: State
@@ -84,17 +65,15 @@ export const initSetStateForProps = (componentProps: State) => (
   new Promise(resolve => {
     const propsResolved: State = { ...componentProps };
 
-    for (const stateProp in stateProps) {
-      for (const actAndProp of actionsAndProps) {
-        const [action, prop] = actAndProp as any;
+    Object.keys(stateProps).map((prop: string) => {
+      const action = propsAndActions[prop].action;
 
-        if (stateProp === prop && componentProps[action().type]) {
-          componentProps[action().type](stateProps[prop]);
-          propsResolved[prop] = stateProps[prop];
-          break;
-        }
+      if (componentProps[action().type]) {
+        componentProps[action().type](stateProps[prop]);
+        propsResolved[prop] = stateProps[prop];
       }
-    }
+      return null;
+    });
     resolve(propsResolved);
   });
 

@@ -114,23 +114,24 @@ export const POPULATE_GRAPH_EDGES = (
   newState: graphEdges
 });
 
-export const actionsAndProps = [
-  [SET_DROPDOWN_IS_COLLAPSED, "dropdownIsCollapsed"],
-  [RESIZE_DROPDOWN_HEIGHT, "dropdownCurHeight"],
-  [UPDATE_REF_ID, "refID"],
-  [UPDATE_ACTIVE_TAB_NAME, "activeTabName"],
-  [UPDATE_ACTIVE_TABLINK_NAME, "activeTabLinkName"],
-  [SET_HISTORY_EXISTS, "historyExists"],
-  [SET_REF_IS_LOADING, "refIsLoading"],
-  [UPDATE_PAYLOAD, "payload"],
-  [SET_ERROR_OCCURRED, "errOccurred"],
-  [GET_ERR_MSG, "errMsg"],
-  [SET_GRAPH_NODE_IS_HOVERED, "graphNodeIsHovered"],
-  [SET_GRAPH_NODE_IS_ACTIVE, "graphNodeIsActive"],
-  [SET_TOOLTIP_IS_ACTIVE, "tooltipIsActive"],
-  [POPULATE_GRAPH_NODES, "graphNodes"],
-  [POPULATE_GRAPH_EDGES, "graphEdges"]
-];
+export const propsAndActions: any = {
+  dropdownIsCollapsed: { action: SET_DROPDOWN_IS_COLLAPSED },
+  dropdownCurHeight: { action: RESIZE_DROPDOWN_HEIGHT },
+  refID: { action: UPDATE_REF_ID },
+  activeTabName: { action: UPDATE_ACTIVE_TAB_NAME },
+  activeTabLinkName: { action: UPDATE_ACTIVE_TABLINK_NAME },
+  historyExists: { action: SET_HISTORY_EXISTS },
+  refIsLoading: { action: SET_REF_IS_LOADING },
+  payload: { action: UPDATE_PAYLOAD },
+  errOccurred: { action: SET_ERROR_OCCURRED },
+  errMsg: { action: GET_ERR_MSG },
+  graphNodeIsHovered: { action: SET_GRAPH_NODE_IS_HOVERED },
+  graphNodeIsActive: { action: SET_GRAPH_NODE_IS_ACTIVE },
+  tooltipIsActive: { action: SET_TOOLTIP_IS_ACTIVE },
+  graphNodes: { action: POPULATE_GRAPH_NODES },
+  graphEdges: { action: POPULATE_GRAPH_EDGES }
+};
+
 
 export const mapProps4dispatch = (needActions: string[]) => (
   dispatch: Function,
@@ -139,45 +140,25 @@ export const mapProps4dispatch = (needActions: string[]) => (
   let props: any = {};
 
   [...needActions].map(actionType => {
-    for (let actAndProp of actionsAndProps) {
-      const action = actAndProp[0] as any;
+    for (let prop of Object.keys(propsAndActions)) {
+      const action = propsAndActions[prop].action;
 
       if (actionType === action().type)
         props[actionType] = (newState: any) => dispatch(action(newState));
     }
     return null;
   });
-
   return props;
 };
+
 
 export const getCorrespondingDispatchNames = (stateProps: string[]) => {
   const dispatchNames = [];
 
-  for (const needProp of stateProps) {
-    for (const actionAndProp of actionsAndProps) {
-      const [action, prop] = actionAndProp as any;
+  for (const prop of stateProps) {
+    const action = propsAndActions[prop].action as any;
 
-      if (prop === needProp) {
-        dispatchNames.push(action().type);
-        break;
-      }
-    }
+    dispatchNames.push(action().type);
   }
-
   return dispatchNames;
 };
-
-const actionNamesAndProps: { allActionNames: string[]; allProps: string[] } = {
-  allActionNames: [],
-  allProps: []
-};
-
-actionsAndProps.map(actionAndProp => {
-  let [action, prop] = actionAndProp as any;
-  actionNamesAndProps.allActionNames.push(action().type);
-  actionNamesAndProps.allProps.push(prop);
-  return null;
-});
-
-export const allActionNamesAndProps = actionNamesAndProps;
