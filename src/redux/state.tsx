@@ -48,6 +48,7 @@ export enum stateProps {
   graphEdges
 }
 
+
 export const mapProps4state = (needProps: string[]) => (
   state: State,
   ownProps?: any
@@ -55,32 +56,35 @@ export const mapProps4state = (needProps: string[]) => (
   const props: State = {};
 
   for (const prop of needProps) props[prop] = state[prop];
-  
+
   return props;
 };
+
 
 export const initSetStateForProps = (componentProps: State) => (
   stateProps: State
 ): Promise<State> =>
   new Promise(resolve => {
     const propsResolved: State = { ...componentProps };
-
-    Object.keys(stateProps).map((prop: string) => {
+    
+    for (const prop in stateProps) {
       const action = propsAndActions[prop].action;
+      const dispatch = componentProps[action().type];
 
-      if (componentProps[action().type]) {
-        componentProps[action().type](stateProps[prop]);
+      if (dispatch) {
+        dispatch(stateProps[prop]);
         propsResolved[prop] = stateProps[prop];
       }
-      return null;
-    });
+    }
     resolve(propsResolved);
   });
+
 
 // export const statesAreEqual = (prev: any, current: any): boolean => {
 //   if (current.constructor !== Object) return prev === current;
 //   else if (current.constructor === Object)
 //     for (const prop in current)
-//       if (!prev || (prop in prev && prev[prop] !== current[prop])) return false;
+//       if (prev !== undefined || (prop in prev && prev[prop] !== current[prop])) return false;
 //   return true;
 // };
+

@@ -132,33 +132,23 @@ export const propsAndActions: any = {
   graphEdges: { action: POPULATE_GRAPH_EDGES }
 };
 
-
 export const mapProps4dispatch = (needActions: string[]) => (
   dispatch: Function,
   ownProps?: State
 ) => {
   let props: any = {};
-
-  [...needActions].map(actionType => {
+  
+  for (let actionType of needActions) {
     for (let prop of Object.keys(propsAndActions)) {
       const action = propsAndActions[prop].action;
 
       if (actionType === action().type)
         props[actionType] = (newState: any) => dispatch(action(newState));
     }
-    return null;
-  });
+  }
   return props;
 };
 
-
 export const getCorrespondingDispatchNames = (stateProps: string[]) => {
-  const dispatchNames = [];
-
-  for (const prop of stateProps) {
-    const action = propsAndActions[prop].action as any;
-
-    dispatchNames.push(action().type);
-  }
-  return dispatchNames;
+  return stateProps.map((prop: string) => propsAndActions[prop].action().type);
 };
